@@ -2,7 +2,6 @@ import { useWeb3React } from '@web3-react/core'
 import { ChainIdNotAllowedError } from '@web3-react/store'
 import { Connector } from '@web3-react/types'
 import { AutoColumn } from '../../components/Column'
-import Row from '../../components/Row'
 import { useCallback, useEffect, useState } from 'react'
 import { ArrowLeft, X as Close } from 'react-feather'
 import { useAppDispatch } from '../../state/hooks'
@@ -15,10 +14,8 @@ import { getWalletForConnector, SUPPORTED_WALLETS, Wallet } from '../../constant
 import usePrevious from '../../hooks/usePrevious'
 import { useModalOpen, useWalletModalToggle } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
-import { ThemedText } from '../../theme'
 import { isMobileFn } from '../../utils/userAgent'
 import AccountDetails from '../AccountDetails'
-import Card from '../Card'
 import Modal from '../Modal'
 import Option from './Option'
 import PendingView from './PendingView'
@@ -65,8 +62,9 @@ const ContentWrapper = styled.div`
 `
 
 const UpperSection = styled.div`
-  color: ${({ theme }) => theme.text1};
   position: relative;
+  color: ${({ theme }) => theme.text1};
+
   h5 {
     margin: 0;
     margin-bottom: 0.5rem;
@@ -101,21 +99,10 @@ const HoverText = styled.div`
   }
 `
 
-const LinkCard = styled(Card)`
-  background-color: ${({ theme }) => theme.bg1};
-  color: ${({ theme }) => theme.text3};
-  :hover {
-    cursor: pointer;
-    filter: brightness(0.9);
-  }
-`
-
 const WALLET_VIEWS = {
   OPTIONS: 'options',
-  OPTIONS_SECONDARY: 'options_secondary',
   ACCOUNT: 'account',
   PENDING: 'pending',
-  LEGAL: 'legal',
 }
 
 export default function WalletModal({
@@ -136,10 +123,10 @@ export default function WalletModal({
     [Wallet.WALLET_CONNECT]: hooks.useSelectedIsActive(walletConnect),
   }
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
-  const previousWalletView = usePrevious(walletView)
 
-  const [pendingError, setPendingError] = useState<boolean>()
-  const [pendingWallet, setPendingWallet] = useState<Connector | undefined>()
+  const [pendingConnector, setPendingConnector] = useState<Connector | undefined>()
+  // Need to pass network as a default case because useSelectedError requirse a connector
+  const pendingError = hooks.useSelectedError(pendingConnector || network)
 
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
@@ -147,9 +134,8 @@ export default function WalletModal({
   const previousConnector = usePrevious(connector)
 
   const resetAccountView = useCallback(() => {
-    setPendingError(false)
     setWalletView(WALLET_VIEWS.ACCOUNT)
-  }, [setPendingError, setWalletView])
+  }, [setWalletView])
 
   useEffect(() => {
     if (walletModalOpen && connector && connector !== previousConnector && !error) {
@@ -159,24 +145,18 @@ export default function WalletModal({
 
   useEffect(() => {
     if (walletModalOpen) {
-      setPendingError(false)
       setWalletView(connector === network ? WALLET_VIEWS.OPTIONS : WALLET_VIEWS.ACCOUNT)
     }
   }, [walletModalOpen, setWalletView, connector])
 
   const tryActivation = async (connector: Connector) => {
-    const name = Object.values(SUPPORTED_WALLETS).find(
-      (supportedWallet) => connector === supportedWallet.connector
-    )?.name
-
     connector.activate()
     const wallet = getWalletForConnector(connector)
     if (isActiveMap[wallet]) {
       dispatch(updateWalletOverride({ wallet }))
       setWalletView(WALLET_VIEWS.ACCOUNT)
     } else {
-      setPendingError(true)
-      setPendingWallet(connector)
+      setPendingConnector(connector)
       setWalletView(WALLET_VIEWS.PENDING)
     }
   }
@@ -188,7 +168,7 @@ export default function WalletModal({
       const option = SUPPORTED_WALLETS[key]
       const isActive = option.connector === connector
 
-      const baseProps = {
+      const optionProps = {
         active: isActive,
         id: `connect-${key}`,
         link: option.href,
@@ -203,7 +183,7 @@ export default function WalletModal({
         if (!window.web3 && !window.ethereum && option.mobile) {
           return (
             <Option
-              {...baseProps}
+              {...optionProps}
               onClick={() => {
                 if (!isActive && !option.href && !!option.connector) {
                   tryActivation(option.connector)
@@ -251,7 +231,7 @@ export default function WalletModal({
         !isMobile &&
         !option.mobileOnly && (
           <Option
-            {...baseProps}
+            {...optionProps}
             onClick={() => {
               option.connector === connector
                 ? setWalletView(WALLET_VIEWS.ACCOUNT)
@@ -284,29 +264,6 @@ export default function WalletModal({
         </UpperSection>
       )
     }
-    if (walletView === WALLET_VIEWS.LEGAL) {
-      return (
-        <UpperSection>
-          <HeaderRow>
-            <HoverText
-              onClick={() => {
-                setWalletView(
-                  (previousWalletView === WALLET_VIEWS.LEGAL ? WALLET_VIEWS.ACCOUNT : previousWalletView) ??
-                    WALLET_VIEWS.ACCOUNT
-                )
-              }}
-            >
-              <ArrowLeft />
-            </HoverText>
-            <Row justify="center">
-              <ThemedText.MediumHeader>
-                <>Legal & Privacy</>
-              </ThemedText.MediumHeader>
-            </Row>
-          </HeaderRow>
-        </UpperSection>
-      )
-    }
     if (walletView === WALLET_VIEWS.ACCOUNT) {
       return (
         <AccountDetails
@@ -323,27 +280,18 @@ export default function WalletModal({
         <CloseIcon onClick={toggleWalletModal}>
           <CloseColor />
         </CloseIcon>
-        {walletView !== WALLET_VIEWS.ACCOUNT ? (
-          <HeaderRow color="blue">
-            <HoverText onClick={resetAccountView}>
-              <ArrowLeft />
-            </HoverText>
-          </HeaderRow>
-        ) : (
-          <HeaderRow>
-            <HoverText>
-              <>Connect a wallet</>
-            </HoverText>
-          </HeaderRow>
-        )}
-
+        <HeaderRow color="blue">
+          <HoverText onClick={() => setWalletView(WALLET_VIEWS.OPTIONS)}>
+            <ArrowLeft />
+          </HoverText>
+        </HeaderRow>
         <ContentWrapper>
           <AutoColumn gap="16px">
             {walletView === WALLET_VIEWS.PENDING && (
               <PendingView
                 resetAccountView={resetAccountView}
-                connector={pendingWallet}
-                error={pendingError}
+                connector={pendingConnector}
+                error={!!pendingError}
                 tryActivation={tryActivation}
               />
             )}
