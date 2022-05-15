@@ -1,7 +1,7 @@
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
-import Uniswap, { ThemeProvider, makeStore } from 'uni-wallet-connect'
+import Uniswap, { ThemeProvider, makeStore } from '@nevenhsu/uni-wallet-connect'
 
 const store = makeStore()
 

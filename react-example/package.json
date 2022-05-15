@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@nevenhsu/uni-wallet-connect": "^0.1.0",
     "@reach/dialog": "^0.17.0",
     "@reduxjs/toolkit": "^1.8.1",
     "@testing-library/jest-dom": "^5.16.4",
@@ -24,7 +25,6 @@
     "@web3-react/url": "^8.0.21-beta.0",
     "@web3-react/walletconnect": "^8.0.30-beta.0",
     "inter-ui": "^3.19.3",
-    "process": "^0.11.10",
     "react": "^18.1.0",
     "react-app-rewired": "^2.2.1",
     "react-dom": "^18.1.0",

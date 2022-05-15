@@ -1,19 +1,9 @@
-const webpack = require('webpack')
-
 module.exports = function override(config, env) {
     //do stuff with the webpack config...
 
     config.resolve.fallback = {
         util: require.resolve('util'),
-        process: require.resolve('process'),
     }
-
-    config.plugins.push(
-        new webpack.ProvidePlugin({
-            process: 'process/browser',
-            Buffer: ['buffer', 'Buffer'],
-        })
-    )
 
     config.ignoreWarnings = [
         function ignoreSourcemapsloaderWarnings(warning) {
