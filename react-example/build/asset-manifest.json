@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "https://nevenhsu.github.io/uni-wallet-connect/static/css/main.d29062ce.css",
-    "main.js": "https://nevenhsu.github.io/uni-wallet-connect/static/js/main.dad35ce1.js",
+    "main.js": "https://nevenhsu.github.io/uni-wallet-connect/static/js/main.2349487b.js",
     "static/js/787.aff05db8.chunk.js": "https://nevenhsu.github.io/uni-wallet-connect/static/js/787.aff05db8.chunk.js",
     "static/media/Inter.var.woff2?v=3.19": "https://nevenhsu.github.io/uni-wallet-connect/static/media/Inter.var.c2fe3cb2b7c746f7966a.woff2",
     "static/media/Inter-italic.var.woff2?v=3.19": "https://nevenhsu.github.io/uni-wallet-connect/static/media/Inter-italic.var.30807be7abc48ba8c73c.woff2",
@@ -45,11 +45,11 @@
     "static/media/logo.svg": "https://nevenhsu.github.io/uni-wallet-connect/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "https://nevenhsu.github.io/uni-wallet-connect/index.html",
     "main.d29062ce.css.map": "https://nevenhsu.github.io/uni-wallet-connect/static/css/main.d29062ce.css.map",
-    "main.dad35ce1.js.map": "https://nevenhsu.github.io/uni-wallet-connect/static/js/main.dad35ce1.js.map",
+    "main.2349487b.js.map": "https://nevenhsu.github.io/uni-wallet-connect/static/js/main.2349487b.js.map",
     "787.aff05db8.chunk.js.map": "https://nevenhsu.github.io/uni-wallet-connect/static/js/787.aff05db8.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.d29062ce.css",
-    "static/js/main.dad35ce1.js"
+    "static/js/main.2349487b.js"
   ]
 }

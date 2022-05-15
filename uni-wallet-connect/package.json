@@ -1,7 +1,7 @@
 {
   "name": "@nevenhsu/uni-wallet-connect",
-  "version": "0.1.3",
-  "description": "A library extracted from the Uniswap v3 codebase and rewrittten for reusability.",
+  "version": "0.1.4",
+  "description": "A library extracted from the Uniswap v3 codebase and rewritten for reusability.",
   "author": "nevenhsu",
   "license": "GPL-3.0-or-later",
   "main": "dist/cjs/src/index.js",
@@ -122,6 +122,10 @@
     "typescript": "^4.6.3"
   },
   "keywords": [
-    "crypto", "uniswap", "wallet", "connect"
+    "uni",
+    "uniswap",
+    "crypto",
+    "wallet",
+    "connect"
   ]
 }
