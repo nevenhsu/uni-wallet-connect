@@ -1,6 +1,6 @@
 {
   "name": "@nevenhsu/uni-wallet-connect",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "author": "",
   "license": "GPL-3.0-or-later",
@@ -17,7 +17,7 @@
   "engines": {
     "node": ">=10"
   },
-  "homepage": "https://github.com/nevenhsu/uni-wallet-connect",
+  "homepage": "https://nevenhsu.github.io/uni-wallet-connect",
   "repository": {
     "type": "git",
     "url": "https://github.com/nevenhsu/uni-wallet-connect.git"

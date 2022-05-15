@@ -4,6 +4,8 @@ A library extracted from the Uniswap v3 codebase and rewrittten for reusability.
 It uses [@web-react](https://github.com/NoahZinsmeister/web3-react#readme) and [ethers.js](https://github.com/ethers-io/ethers.js).
 NextJS is supported by default.
 
+## [Demo](https://nevenhsu.github.io/uni-wallet-connect/)
+
 ## How to use
 
 See [next example](./next-example) for complete details.
