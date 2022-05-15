@@ -4,6 +4,7 @@ import styled, { css, DefaultTheme, ThemeProvider as StyledComponentsThemeProvid
 
 import { useIsDarkMode } from '../state/user/hooks'
 import { Colors } from './styled'
+import { mergeDeep } from '../utils/deepMerge'
 
 export * from './components'
 
@@ -136,10 +137,28 @@ function theme(darkMode: boolean): DefaultTheme {
   }
 }
 
-export default function ThemeProvider({ children }: { children: React.ReactNode }) {
+type ThemeProviderProps = {
+  customize?: (darkMode: boolean) => Partial<DefaultTheme>
+  children: React.ReactNode
+}
+
+export default function ThemeProvider(props: ThemeProviderProps) {
+  const { children, customize } = props
   const darkMode = useIsDarkMode()
 
-  const themeObject = useMemo(() => theme(darkMode), [darkMode])
+  const hasCustomize = typeof customize === 'function'
+
+  const themeObject = useMemo(() => {
+    let customTheme = {}
+
+    if (hasCustomize) {
+      customTheme = customize(darkMode)
+    }
+
+    const defaultTheme = theme(darkMode)
+
+    return mergeDeep(defaultTheme, customTheme) as DefaultTheme
+  }, [darkMode, hasCustomize])
 
   return <StyledComponentsThemeProvider theme={themeObject}>{children}</StyledComponentsThemeProvider>
 }
