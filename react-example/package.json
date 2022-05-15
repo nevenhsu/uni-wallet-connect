@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@nevenhsu/uni-wallet-connect": "^0.1.0",
+    "@nevenhsu/uni-wallet-connect": "^0.1.5",
     "@reach/dialog": "^0.17.0",
     "@reduxjs/toolkit": "^1.8.1",
     "@testing-library/jest-dom": "^5.16.4",
