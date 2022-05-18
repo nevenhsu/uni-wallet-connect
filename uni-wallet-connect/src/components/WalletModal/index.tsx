@@ -9,8 +9,9 @@ import { updateWalletOverride } from '../../state/user/reducer'
 import styled from 'styled-components'
 
 import MetamaskIcon from '../../assets/images/metamask.png'
-import { coinbaseWallet, injected, network, walletConnect } from '../../connectors'
-import { getWalletForConnector, SUPPORTED_WALLETS, Wallet } from '../../constants/wallet'
+import TallyIcon from '../../assets/images/tally.png'
+import { coinbaseWallet, getWalletForConnector, injected, network, Wallet, walletConnect } from '../../connectors'
+import { SUPPORTED_WALLETS } from '../../constants/wallet'
 import usePrevious from '../../hooks/usePrevious'
 import { useModalOpen, useWalletModalToggle } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
@@ -123,6 +124,7 @@ export default function WalletModal({
     [Wallet.WALLET_CONNECT]: hooks.useSelectedIsActive(walletConnect),
   }
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
+  const previousWalletView = usePrevious(walletView)
 
   const [pendingConnector, setPendingConnector] = useState<Connector | undefined>()
   // Need to pass network as a default case because useSelectedError requirse a connector
@@ -164,6 +166,7 @@ export default function WalletModal({
   // get wallets user can switch too, depending on device/browser
   function getOptions() {
     const isMetamask = !!window.ethereum?.isMetaMask
+    const isTally = !!window.ethereum?.isTally
     return Object.keys(SUPPORTED_WALLETS).map((key) => {
       const option = SUPPORTED_WALLETS[key]
       const isActive = option.connector === connector
@@ -223,6 +226,24 @@ export default function WalletModal({
         // likewise for generic
         else if (option.name === 'Injected' && isMetamask) {
           return null
+        } else if (option.name === 'Injected' && isTally) {
+          return (
+            <Option
+              id={`connect-${key}`}
+              key={key}
+              onClick={() => {
+                option.connector === connector
+                  ? setWalletView(WALLET_VIEWS.ACCOUNT)
+                  : !option.href && option.connector && tryActivation(option.connector)
+              }}
+              color={'#E8831D'}
+              header={<>Tally</>}
+              active={option.connector === connector}
+              subheader={null}
+              link={null}
+              icon={TallyIcon}
+            />
+          )
         }
       }
 
@@ -304,7 +325,7 @@ export default function WalletModal({
 
   return (
     <Modal isOpen={walletModalOpen} onDismiss={toggleWalletModal} minHeight={false} maxHeight={90}>
-      <Wrapper className="uni-wallet-modal">{getModalContent()}</Wrapper>
+      <Wrapper>{getModalContent()}</Wrapper>
     </Modal>
   )
 }

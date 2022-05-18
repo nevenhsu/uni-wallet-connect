@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { Wallet } from '../../connectors'
 import { SupportedLocale } from '../../constants/locales'
-import { Wallet } from '../../constants/wallet'
 
 const currentTimestamp = () => new Date().getTime()
 

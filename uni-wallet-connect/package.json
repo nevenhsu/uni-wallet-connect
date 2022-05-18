@@ -1,6 +1,6 @@
 {
   "name": "@nevenhsu/uni-wallet-connect",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A library extracted from the Uniswap v3 codebase and rewritten for reusability.",
   "author": "nevenhsu",
   "license": "GPL-3.0-or-later",
