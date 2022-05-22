@@ -10,10 +10,12 @@ export const ColumnCenter = styled(Column)`
   align-items: center;
 `
 
-export const AutoColumn = styled.div<{
+export type ColumnGapProps = {
   gap?: 'sm' | 'md' | 'lg' | string
   justify?: 'stretch' | 'center' | 'start' | 'end' | 'flex-start' | 'flex-end' | 'space-between'
-}>`
+}
+
+export const AutoColumn = styled.div<ColumnGapProps>`
   display: grid;
   grid-auto-rows: auto;
   grid-row-gap: ${({ gap }) => (gap === 'sm' && '8px') || (gap === 'md' && '12px') || (gap === 'lg' && '24px') || gap};

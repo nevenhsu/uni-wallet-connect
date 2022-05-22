@@ -3,7 +3,7 @@ import { CHAIN_INFO } from '../constants/chainInfo'
 import { SupportedChainId } from '../constants/chains'
 import { INFURA_NETWORK_URLS } from '../constants/infura'
 
-function getRpcUrls(chainId: SupportedChainId): [string] {
+export function getRpcUrls(chainId: SupportedChainId): [string] {
   switch (chainId) {
     case SupportedChainId.MAINNET:
     case SupportedChainId.RINKEBY:

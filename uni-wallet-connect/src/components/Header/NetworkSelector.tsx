@@ -306,7 +306,7 @@ export default function NetworkSelector() {
   // }
 
   return (
-    <SelectorWrapper ref={node as any} onMouseEnter={toggle} onMouseLeave={toggle}>
+    <SelectorWrapper className="uni-network-selector" ref={node as any} onMouseEnter={toggle} onMouseLeave={toggle}>
       <SelectorControls interactive>
         <SelectorLogo interactive src={info?.logoUrl ?? ethereumLogoUrl} />
         <SelectorLabel>{info?.label ?? 'Network'}</SelectorLabel>

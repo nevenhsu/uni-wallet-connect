@@ -1,6 +1,6 @@
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import useIsWindowVisible from '../../hooks/useIsWindowVisible'
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 const MISSING_PROVIDER = Symbol()
 const BlockNumberContext = createContext<

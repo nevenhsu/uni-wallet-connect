@@ -47,7 +47,7 @@ export default MyApp
 
 ```javascript
 import React from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import Uniswap, { ThemeProvider, makeStore } from '@nevenhsu/uni-wallet-connect'
 
@@ -57,9 +57,9 @@ export default function Wrapper({ children }: React.PropsWithChildren<{}>) {
   return (
     <Provider store={store}>
       <ThemeProvider>
-        <BrowserRouter>
+        <HashRouter>
           <Uniswap>{children}</Uniswap>
-        </BrowserRouter>
+        </HashRouter>
       </ThemeProvider>
     </Provider>
   )
@@ -72,4 +72,5 @@ export default function Wrapper({ children }: React.PropsWithChildren<{}>) {
 NEXT_PUBLIC_INFURA_KEY=xxxxxyyyyyzzzzz
 NEXT_PUBLIC_APP_NAME=uni-wallet
 NEXT_PUBLIC_LOGO_URL=http://localhost:3000/icon.png
+NEXT_PUBLIC_DEFAULT_CHAIN_ID=1
 ```

@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import Uniswap, { ThemeProvider, makeStore } from '@nevenhsu/uni-wallet-connect'
 
@@ -9,9 +9,9 @@ export default function Wrapper({ children }: React.PropsWithChildren<{}>) {
   return (
     <Provider store={store}>
       <ThemeProvider>
-        <BrowserRouter>
+        <HashRouter>
           <Uniswap>{children}</Uniswap>
-        </BrowserRouter>
+        </HashRouter>
       </ThemeProvider>
     </Provider>
   )
