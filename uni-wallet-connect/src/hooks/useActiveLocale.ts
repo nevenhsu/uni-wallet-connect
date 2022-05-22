@@ -1,6 +1,5 @@
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, SupportedLocale } from '../constants/locales'
 import { useMemo } from 'react'
-import store from '../state'
 import { useUserLocale } from '../state/user/hooks'
 
 import useParsedQueryString, { parsedQueryString } from '../hooks/useParsedQueryString'
@@ -32,12 +31,7 @@ export function navigatorLocale(): SupportedLocale | undefined {
   return parseLocale(language)
 }
 
-function storeLocale(): SupportedLocale | undefined {
-  return store.getState().user.userLocale ?? undefined
-}
-
-export const initialLocale =
-  parseLocale(parsedQueryString().lng) ?? storeLocale() ?? navigatorLocale() ?? DEFAULT_LOCALE
+export const initialLocale = parseLocale(parsedQueryString().lng) ?? navigatorLocale() ?? DEFAULT_LOCALE
 
 function useUrlLocale() {
   const parsed = useParsedQueryString()

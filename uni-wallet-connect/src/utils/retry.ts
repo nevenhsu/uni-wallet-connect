@@ -1,3 +1,19 @@
+import { SupportedChainId } from '../constants/chains'
+
+export interface RetryOptions {
+  n: number
+  minWait: number
+  maxWait: number
+}
+
+export const RETRY_OPTIONS_BY_CHAIN_ID: { [chainId: number]: RetryOptions } = {
+  [SupportedChainId.ARBITRUM_ONE]: { n: 10, minWait: 250, maxWait: 1000 },
+  [SupportedChainId.ARBITRUM_RINKEBY]: { n: 10, minWait: 250, maxWait: 1000 },
+  [SupportedChainId.OPTIMISTIC_KOVAN]: { n: 10, minWait: 250, maxWait: 1000 },
+  [SupportedChainId.OPTIMISM]: { n: 10, minWait: 250, maxWait: 1000 },
+}
+export const DEFAULT_RETRY_OPTIONS: RetryOptions = { n: 1, minWait: 0, maxWait: 0 }
+
 function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -21,12 +37,6 @@ class CancelledError extends Error {
  */
 export class RetryableError extends Error {
   public isRetryableError: true = true
-}
-
-export interface RetryOptions {
-  n: number
-  minWait: number
-  maxWait: number
 }
 
 /**

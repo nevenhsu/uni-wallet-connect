@@ -1,7 +1,16 @@
-import { Box } from 'rebass/styled-components'
+import { Box, BoxProps as BoxPropsOriginal } from 'rebass/styled-components'
 import styled from 'styled-components'
 
-const Card = styled(Box)<{ width?: string; padding?: string; border?: string; $borderRadius?: string }>`
+type BoxProps = Omit<BoxPropsOriginal, 'css'>
+
+export type CardProps = BoxProps & {
+  width?: string
+  padding?: string
+  border?: string
+  $borderRadius?: string
+}
+
+const Card = styled(Box)<CardProps>`
   width: ${({ width }) => width ?? '100%'};
   padding: ${({ padding }) => padding ?? '1rem'};
   border-radius: ${({ $borderRadius }) => $borderRadius ?? '16px'};

@@ -1,14 +1,18 @@
-import { Box } from 'rebass/styled-components'
+import { Box, BoxProps as BoxPropsOriginal } from 'rebass/styled-components'
 import styled from 'styled-components'
 
-const Row = styled(Box)<{
+type BoxProps = Omit<BoxPropsOriginal, 'css'>
+
+export type RowProps = BoxProps & {
   width?: string
   align?: string
   justify?: string
   padding?: string
   border?: string
   borderRadius?: string
-}>`
+}
+
+const Row = styled(Box)<RowProps>`
   width: ${({ width }) => width ?? '100%'};
   display: flex;
   padding: 0;
@@ -28,7 +32,9 @@ export const RowFlat = styled.div`
   align-items: flex-end;
 `
 
-export const AutoRow = styled(Row)<{ gap?: string; justify?: string }>`
+export type RowGapProps = BoxProps & { gap?: string; justify?: string }
+
+export const AutoRow = styled(Row)<RowGapProps>`
   flex-wrap: wrap;
   margin: ${({ gap }) => gap && `-${gap}`};
   justify-content: ${({ justify }) => justify && justify};
@@ -38,7 +44,7 @@ export const AutoRow = styled(Row)<{ gap?: string; justify?: string }>`
   }
 `
 
-export const RowFixed = styled(Row)<{ gap?: string; justify?: string }>`
+export const RowFixed = styled(Row)<RowGapProps>`
   width: fit-content;
   margin: ${({ gap }) => gap && `-${gap}`};
 `

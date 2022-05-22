@@ -11,13 +11,13 @@ import type { Reducer, AnyAction } from '@reduxjs/toolkit'
 
 const PERSISTED_KEYS: string[] = ['user', 'transactions']
 
-type Options = {
+export type StoreOptions = {
   reducers: { [key: string]: Reducer<any, AnyAction> }
   middleware: any[]
   persistedKeys: string[]
 }
 
-export function makeStore(options: Partial<Options> = {}) {
+export function makeStore(options: Partial<StoreOptions> = {}) {
   const { reducers = [], middleware = [], persistedKeys: keys = [] } = options || {}
   const persistedKeys = [...PERSISTED_KEYS, ...keys]
 
@@ -44,5 +44,3 @@ setupListeners(store.dispatch)
 
 export type AppState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
-
-export default store
