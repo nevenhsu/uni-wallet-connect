@@ -1,5 +1,4 @@
 import '@reach/dialog/styles.css'
-import 'inter-ui/inter.css'
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import dynamic from 'next/dynamic'

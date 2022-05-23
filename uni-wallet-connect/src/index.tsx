@@ -17,6 +17,7 @@ export * from './state/user/hooks'
 export * from './state/hooks'
 export * from './utils/retry'
 export * from './utils/switchToNetwork'
+export { ApplicationModal } from './state/application/reducer'
 export { TransactionType } from './state/transactions/types'
 export { SupportedChainId } from './constants/chains'
 export { default as ThemeProvider, ThemedText, MEDIA_WIDTHS, Z_INDEX } from './theme'
@@ -32,6 +33,7 @@ export type { ColumnGapProps } from './components/Column'
 export type { ModalProps } from './components/Modal'
 export type { PopoverProps } from './components/Popover'
 export type { RowProps, RowGapProps } from './components/Row'
+export type { NumericalInputProps } from './components/NumericalInput'
 
 function Updaters() {
   if (window?.ethereum?.autoRefreshOnNetworkChange) {

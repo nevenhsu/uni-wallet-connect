@@ -25,7 +25,6 @@
     "@web3-react/url": "^8.0.22-beta.0",
     "@web3-react/walletconnect": "^8.0.31-beta.0",
     "buffer": "^6.0.3",
-    "inter-ui": "^3.19.3",
     "process": "^0.11.10",
     "react": "^18.1.0",
     "react-app-rewired": "^2.2.1",

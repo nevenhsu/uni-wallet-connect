@@ -1,5 +1,4 @@
 import '@reach/dialog/styles.css'
-import 'inter-ui/inter.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'

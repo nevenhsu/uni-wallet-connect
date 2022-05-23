@@ -39,3 +39,7 @@ export function getContract(address: string, ABI: any, library: JsonRpcProvider,
 
   return new Contract(address, ABI, getProviderOrSigner(library, account) as any)
 }
+
+export function escapeRegExp(string: string): string {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
+}
