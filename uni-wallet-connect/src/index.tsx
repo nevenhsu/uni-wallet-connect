@@ -73,7 +73,6 @@ function AppState(props: AppStateProps): null {
         setState(k, v)
       })
     }
-    console.log('AppState', props)
   }, [props])
 
   return null
