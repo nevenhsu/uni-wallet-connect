@@ -1,8 +1,12 @@
-import { TransactionInfo, TransactionType } from '../../state/transactions/types'
+import useAppContext from '../../hooks/useAppContext'
 
-export function TransactionSummary({ info }: { info: TransactionInfo }) {
-  switch (info.type) {
-    default:
-      return null
+export function TransactionSummary({ info }: { info: any }) {
+  const { state } = useAppContext()
+  const { renderSummary } = state
+
+  if (renderSummary) {
+    return renderSummary(info) ?? null
   }
+
+  return null
 }

@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import useBlockNumber, { BlockNumberProvider } from './lib/hooks/useBlockNumber'
+import useAppContext, { AppProvider } from './hooks/useAppContext'
 import { MulticallUpdater } from './lib/state/multicall'
 
 import Header from './components/Header'
@@ -15,12 +16,17 @@ export * from './state/application/hooks'
 export * from './state/transactions/hooks'
 export * from './state/user/hooks'
 export * from './state/hooks'
+export * from './utils'
 export * from './utils/retry'
 export * from './utils/switchToNetwork'
+export * from './hooks/useContract'
 export { ApplicationModal } from './state/application/reducer'
 export { TransactionType } from './state/transactions/types'
 export { SupportedChainId } from './constants/chains'
 export { default as ThemeProvider, ThemedText, MEDIA_WIDTHS, Z_INDEX } from './theme'
+export { default as useAppContext } from './hooks/useAppContext'
+export { default as useInterval } from './lib/hooks/useInterval'
+export { default as uriToHttp } from './lib/utils/uriToHttp'
 export { useBlockNumber }
 
 export type { RetryOptions } from './utils/retry'
@@ -50,13 +56,41 @@ function Updaters() {
   )
 }
 
-export default function Wrapper({ children }: { children: React.ReactNode }) {
+export type AppStateProps = {
+  [key: string | number]: any
+  renderSummary?: (info: any) => JSX.Element
+}
+
+function AppState(props: AppStateProps): null {
+  const { setState } = useAppContext()
+
+  useEffect(() => {
+    if (props) {
+      const keys = Object.keys(props)
+
+      keys.forEach((k) => {
+        const v = props[k]
+        setState(k, v)
+      })
+    }
+    console.log('AppState', props)
+  }, [props])
+
+  return null
+}
+
+export default function Wrapper(props: React.PropsWithChildren<AppStateProps>) {
+  const { children, ...others } = props
+
   return (
     <Web3Provider>
       <BlockNumberProvider>
-        <Updaters />
-        <Header />
-        {children}
+        <AppProvider>
+          <Updaters />
+          <Header />
+          <AppState {...others} />
+          {children}
+        </AppProvider>
       </BlockNumberProvider>
     </Web3Provider>
   )

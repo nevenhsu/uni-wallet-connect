@@ -7,7 +7,7 @@ import { addTransaction } from './reducer'
 import { TransactionDetails, TransactionInfo, TransactionType } from './types'
 
 // helper that can take a ethers library transaction response and add it to the list of transactions
-export function useTransactionAdder(): (response: TransactionResponse, info: TransactionInfo) => void {
+export function useTransactionAdder(): (response: TransactionResponse, info: any) => void {
   const { chainId, account } = useActiveWeb3React()
   const dispatch = useAppDispatch()
 

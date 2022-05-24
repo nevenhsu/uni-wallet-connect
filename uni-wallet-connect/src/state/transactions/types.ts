@@ -32,7 +32,7 @@ export enum TransactionType {
 }
 
 export interface BaseTransactionInfo {
-  type: TransactionType
+  type: any
 }
 
 export type TransactionInfo = BaseTransactionInfo

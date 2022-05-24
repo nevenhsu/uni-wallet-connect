@@ -71,4 +71,5 @@ export default function Wrapper({ children }: React.PropsWithChildren<{}>) {
 NEXT_PUBLIC_INFURA_KEY=xxxxxyyyyyzzzzz
 NEXT_PUBLIC_APP_NAME=uni-wallet
 NEXT_PUBLIC_LOGO_URL=http://localhost:3000/icon.png
+NEXT_PUBLIC_DEFAULT_CHAIN_ID=1
 ```
