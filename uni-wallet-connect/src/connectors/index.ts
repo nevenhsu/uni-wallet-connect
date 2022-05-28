@@ -12,8 +12,8 @@ import Fortmatic from 'fortmatic'
 
 const APP_NAME = process.env.REACT_APP_NAME || process.env.NEXT_PUBLIC_APP_NAME || 'dapp'
 const LOGO_URL = process.env.REACT_APP_LOGO_URL || process.env.NEXT_PUBLIC_LOGO_URL
-const DEFAULT_CHAIN_ID = process.env.REACT_APP_DEFAULT_CHAIN_ID || process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID
-const FORTMATIC_KEY = process.env.REACT_APP_FORTMATIC_KEY || process.env.NEXT_PUBLIC_FORTMATIC_KEY
+const DEFAULT_CHAIN_ID = Number(process.env.REACT_APP_DEFAULT_CHAIN_ID || process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID) || 1
+const FORTMATIC_KEY = process.env.REACT_APP_FORTMATIC_KEY || process.env.NEXT_PUBLIC_FORTMATIC_KEY || 'empty'
 
 export enum Wallet {
   INJECTED = 'INJECTED',
@@ -73,7 +73,7 @@ export const getHooksForWallet = (wallet: Wallet) => {
 }
 
 export const [network, networkHooks] = initializeConnector<Network>(
-  (actions) => new Network(actions, INFURA_NETWORK_URLS, true, Number(DEFAULT_CHAIN_ID) || 1),
+  (actions) => new Network(actions, INFURA_NETWORK_URLS, true, DEFAULT_CHAIN_ID),
   Object.keys(INFURA_NETWORK_URLS).map((chainId) => Number(chainId))
 )
 

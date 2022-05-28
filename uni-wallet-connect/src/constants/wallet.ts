@@ -2,9 +2,13 @@ import { Connector } from '@web3-react/types'
 
 import INJECTED_ICON_URL from '../assets/images/arrow-right.svg'
 import COINBASE_ICON_URL from '../assets/images/coinbaseWalletIcon.svg'
+import FORTMATIC_ICON_URL from '../assets/images/fortmaticIcon.png'
 import METAMASK_ICON_URL from '../assets/images/metamask.png'
 import WALLETCONNECT_ICON_URL from '../assets/images/walletConnectIcon.svg'
-import { coinbaseWallet, injected, Wallet, walletConnect } from '../connectors'
+import { coinbaseWallet, fortmatic, injected, Wallet, walletConnect } from '../connectors'
+
+const FORTMATIC_KEY = process.env.REACT_APP_FORTMATIC_KEY || process.env.NEXT_PUBLIC_FORTMATIC_KEY
+const hasFortmatic = Boolean(FORTMATIC_KEY)
 
 interface WalletInfo {
   connector?: Connector
@@ -19,7 +23,7 @@ interface WalletInfo {
   mobileOnly?: true
 }
 
-export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
+const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
   INJECTED: {
     connector: injected,
     wallet: Wallet.INJECTED,
@@ -68,4 +72,20 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     mobile: true,
     mobileOnly: true,
   },
+  FORTMATIC: {
+    connector: fortmatic,
+    wallet: Wallet.FORTMATIC,
+    name: 'Fortmatic',
+    iconURL: FORTMATIC_ICON_URL,
+    description: 'Login using Fortmatic hosted wallet',
+    href: null,
+    color: '#6748FF',
+    mobile: true,
+  },
 }
+
+if (!hasFortmatic) {
+  delete SUPPORTED_WALLETS.FORTMATIC
+}
+
+export { SUPPORTED_WALLETS }
