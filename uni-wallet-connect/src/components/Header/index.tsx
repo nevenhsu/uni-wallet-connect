@@ -1,3 +1,4 @@
+import clsx, { ClassValue } from 'clsx'
 import { CHAIN_INFO } from '../../constants/chainInfo'
 import { SupportedChainId } from '../../constants/chains'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
@@ -7,6 +8,11 @@ import styled from 'styled-components'
 
 import Web3Status from '../Web3Status'
 import NetworkSelector from './NetworkSelector'
+import useAppContext from '../../hooks/useAppContext'
+
+type HeaderProps = {
+  classes?: ClassValue
+}
 
 const HeaderControls = styled.div`
   display: flex;
@@ -59,17 +65,19 @@ const BalanceText = styled(Text)`
   `};
 `
 
-export default function Header() {
+export default function Header(props: HeaderProps) {
+  const { classes } = props
   const { account, chainId } = useActiveWeb3React()
 
   const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
+  const { state } = useAppContext()
 
   const {
     nativeCurrency: { symbol: nativeCurrencySymbol },
   } = CHAIN_INFO[chainId ? chainId : SupportedChainId.MAINNET]
 
   return (
-    <HeaderControls className="uni-wallet-header">
+    <HeaderControls className={clsx('uni-wallet-header', state.walletClasses)}>
       <HeaderElement>
         <NetworkSelector />
       </HeaderElement>

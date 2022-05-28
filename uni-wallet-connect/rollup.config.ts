@@ -4,6 +4,7 @@ import commonjs from '@rollup/plugin-commonjs'
 import babel from '@rollup/plugin-babel'
 import json from '@rollup/plugin-json'
 import image from '@rollup/plugin-image'
+import strip from '@rollup/plugin-strip'
 import svgr from '@svgr/rollup'
 import typescript from 'rollup-plugin-typescript2'
 import sourceMaps from 'rollup-plugin-sourcemaps'
@@ -25,7 +26,7 @@ const resolveOptions = {
   dedupe: peerDependencies,
 }
 
-const commonPlugins = [svgr({ icon: true }), image(), sourceMaps(), json()]
+const commonPlugins = [svgr({ icon: true }), image(), sourceMaps(), json(), strip()]
 
 export default defineConfig([
   // ES

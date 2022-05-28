@@ -1,3 +1,4 @@
+import { ClassValue } from 'clsx'
 import React, { useEffect } from 'react'
 import useBlockNumber, { BlockNumberProvider } from './lib/hooks/useBlockNumber'
 import useAppContext, { AppProvider } from './hooks/useAppContext'
@@ -58,6 +59,7 @@ function Updaters() {
 
 export type AppStateProps = {
   [key: string | number]: any
+  walletClasses?: ClassValue
   renderSummary?: (info: any) => JSX.Element
 }
 

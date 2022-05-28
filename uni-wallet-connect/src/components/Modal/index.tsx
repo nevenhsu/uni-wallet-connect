@@ -1,3 +1,4 @@
+import clsx, { ClassValue } from 'clsx'
 import { DialogContent, DialogOverlay } from '@reach/dialog'
 import { transparentize } from 'polished'
 import React from 'react'
@@ -11,15 +12,13 @@ import { Z_INDEX } from '../../theme'
 const AnimatedDialogOverlay = animated(DialogOverlay)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const StyledDialogOverlay = styled(AnimatedDialogOverlay)`
-  &[data-reach-dialog-overlay] {
-    z-index: ${Z_INDEX.modalBackdrop};
-    background-color: transparent;
-    overflow: hidden;
+  z-index: ${Z_INDEX.modalBackdrop};
+  background-color: transparent;
+  overflow: hidden;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `
 
 const AnimatedDialogContent = animated(DialogContent)
@@ -27,41 +26,37 @@ const AnimatedDialogContent = animated(DialogContent)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const StyledDialogContent = styled(({ minHeight, maxHeight, mobile, isOpen, ...rest }) => (
   <AnimatedDialogContent {...rest} />
-)).attrs({
-  'aria-label': 'dialog',
-})`
+))`
   overflow-y: auto;
+  margin: 0 0 2rem 0;
+  background-color: ${({ theme }) => theme.bg0};
+  border: 1px solid ${({ theme }) => theme.bg1};
+  box-shadow: 0 4px 8px 0 ${({ theme }) => transparentize(0.95, theme.shadow1)};
+  padding: 0px;
+  width: 50vw;
+  overflow-y: auto;
+  overflow-x: hidden;
 
-  &[data-reach-dialog-content] {
-    margin: 0 0 2rem 0;
-    background-color: ${({ theme }) => theme.bg0};
-    border: 1px solid ${({ theme }) => theme.bg1};
-    box-shadow: 0 4px 8px 0 ${({ theme }) => transparentize(0.95, theme.shadow1)};
-    padding: 0px;
-    width: 50vw;
-    overflow-y: auto;
-    overflow-x: hidden;
+  align-self: ${({ mobile }) => (mobile ? 'flex-end' : 'center')};
 
-    align-self: ${({ mobile }) => (mobile ? 'flex-end' : 'center')};
-
-    max-width: 420px;
-    ${({ maxHeight }) =>
-      maxHeight &&
-      css`
-        max-height: ${maxHeight}vh;
-      `}
-    ${({ minHeight }) =>
-      minHeight &&
-      css`
-        min-height: ${minHeight}vh;
-      `}
+  max-width: 420px;
+  ${({ maxHeight }) =>
+    maxHeight &&
+    css`
+      max-height: ${maxHeight}vh;
+    `}
+  ${({ minHeight }) =>
+    minHeight &&
+    css`
+      min-height: ${minHeight}vh;
+    `}
     display: flex;
-    border-radius: 20px;
-    ${({ theme }) => theme.mediaWidth.upToMedium`
+  border-radius: 20px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
       width: 65vw;
       margin: 0;
     `}
-    ${({ theme, mobile }) => theme.mediaWidth.upToSmall`
+  ${({ theme, mobile }) => theme.mediaWidth.upToSmall`
       width:  85vw;
       ${
         mobile &&
@@ -73,7 +68,6 @@ const StyledDialogContent = styled(({ minHeight, maxHeight, mobile, isOpen, ...r
         `
       }
     `}
-  }
 `
 
 export interface ModalProps {
@@ -83,6 +77,7 @@ export interface ModalProps {
   maxHeight?: number
   initialFocusRef?: React.RefObject<any>
   children?: React.ReactNode
+  classes?: ClassValue
 }
 
 export default function Modal({
@@ -92,6 +87,7 @@ export default function Modal({
   maxHeight = 90,
   initialFocusRef,
   children,
+  classes,
 }: ModalProps) {
   const isMobile = isMobileFn()
   const fadeTransition = useTransition(isOpen, {
@@ -119,7 +115,7 @@ export default function Modal({
         (props, item) =>
           item && (
             <StyledDialogOverlay
-              className="uni-modal-overlay"
+              className={clsx('uni-modal-overlay', classes)}
               style={props}
               onDismiss={onDismiss}
               initialFocusRef={initialFocusRef}

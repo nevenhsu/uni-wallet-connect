@@ -1,6 +1,6 @@
 {
   "name": "@nevenhsu/uni-wallet-connect",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "A library extracted from the Uniswap v3 codebase and rewritten for reusability.",
   "author": "nevenhsu",
   "license": "GPL-3.0-or-later",
@@ -39,6 +39,7 @@
     "@uniswap/redux-multicall": "^1.1.1",
     "@uniswap/sdk-core": "^3.0.1",
     "@uniswap/v3-periphery": "^1.4.1",
+    "clsx": "^1.1.1",
     "jotai": "^1.6.5",
     "polished": "^4.2.2",
     "qs": "^6.10.3",
@@ -88,6 +89,7 @@
     "@rollup/plugin-multi-entry": "^4.0.0",
     "@rollup/plugin-node-resolve": "^11.2.1",
     "@rollup/plugin-replace": "^4.0.0",
+    "@rollup/plugin-strip": "^2.1.0",
     "@rollup/plugin-typescript": "^8.3.0",
     "@svgr/rollup": "^6.2.1",
     "@types/node": "^17.0.31",
