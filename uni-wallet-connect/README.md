@@ -11,9 +11,7 @@ NextJS is supported by default.
 See [next example](./next-example) for complete details.
 
 ```bash
-npm install uni-wallet-connect
-# or
-yarn add uni-wallet-connect
+npm install @nevenhsu/uni-wallet-connect --force
 ```
 
 **pages/\_app.tsx**

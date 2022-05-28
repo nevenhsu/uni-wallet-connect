@@ -1,5 +1,6 @@
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { initializeConnector, Web3ReactHooks } from '@web3-react/core'
+import { EIP1193 } from '@web3-react/eip1193'
 import { GnosisSafe } from '@web3-react/gnosis-safe'
 import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
@@ -7,18 +8,21 @@ import { Connector } from '@web3-react/types'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { ALL_SUPPORTED_CHAIN_IDS, SupportedChainId } from '../constants/chains'
 import { INFURA_NETWORK_URLS } from '../constants/infura'
+import Fortmatic from 'fortmatic'
 
 const APP_NAME = process.env.REACT_APP_NAME || process.env.NEXT_PUBLIC_APP_NAME || 'dapp'
 const LOGO_URL = process.env.REACT_APP_LOGO_URL || process.env.NEXT_PUBLIC_LOGO_URL
 const DEFAULT_CHAIN_ID = process.env.REACT_APP_DEFAULT_CHAIN_ID || process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID
+const FORTMATIC_KEY = process.env.REACT_APP_FORTMATIC_KEY || process.env.NEXT_PUBLIC_FORTMATIC_KEY
 
 export enum Wallet {
   INJECTED = 'INJECTED',
   COINBASE_WALLET = 'COINBASE_WALLET',
   WALLET_CONNECT = 'WALLET_CONNECT',
+  FORTMATIC = 'FORTMATIC',
 }
 
-export const WALLETS = [Wallet.COINBASE_WALLET, Wallet.WALLET_CONNECT, Wallet.INJECTED]
+export const WALLETS = [Wallet.COINBASE_WALLET, Wallet.WALLET_CONNECT, Wallet.INJECTED, Wallet.FORTMATIC]
 
 export const getWalletForConnector = (connector: Connector) => {
   switch (connector) {
@@ -28,6 +32,8 @@ export const getWalletForConnector = (connector: Connector) => {
       return Wallet.COINBASE_WALLET
     case walletConnect:
       return Wallet.WALLET_CONNECT
+    case fortmatic:
+      return Wallet.FORTMATIC
     default:
       throw Error('unsupported connector')
   }
@@ -41,6 +47,8 @@ export const getConnectorForWallet = (wallet: Wallet) => {
       return coinbaseWallet
     case Wallet.WALLET_CONNECT:
       return walletConnect
+    case Wallet.FORTMATIC:
+      return fortmatic
   }
 }
 
@@ -59,6 +67,8 @@ export const getHooksForWallet = (wallet: Wallet) => {
       return coinbaseWalletHooks
     case Wallet.WALLET_CONNECT:
       return walletConnectHooks
+    case Wallet.FORTMATIC:
+      return fortmaticHooks
   }
 }
 
@@ -72,7 +82,7 @@ export const [injected, injectedHooks] = initializeConnector<MetaMask>(
   ALL_SUPPORTED_CHAIN_IDS
 )
 
-export const [gnosisSafe, gnosisSafeHooks] = initializeConnector<GnosisSafe>((actions) => new GnosisSafe(actions))
+export const [gnosisSafe, gnosisSafeHooks] = initializeConnector<GnosisSafe>((actions) => new GnosisSafe(actions, true))
 
 export const [walletConnect, walletConnectHooks] = initializeConnector<WalletConnect>(
   (actions) =>
@@ -81,6 +91,10 @@ export const [walletConnect, walletConnectHooks] = initializeConnector<WalletCon
       qrcode: true,
     }),
   ALL_SUPPORTED_CHAIN_IDS
+)
+
+export const [fortmatic, fortmaticHooks] = initializeConnector<EIP1193>(
+  (actions) => new EIP1193(actions, new Fortmatic(FORTMATIC_KEY).getProvider())
 )
 
 export const [coinbaseWallet, coinbaseWalletHooks] = initializeConnector<CoinbaseWallet>(

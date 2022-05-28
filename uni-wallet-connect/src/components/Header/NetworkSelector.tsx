@@ -1,3 +1,4 @@
+import { fortmatic } from '../../connectors'
 import { CHAIN_INFO } from '../../constants/chainInfo'
 import { CHAIN_IDS_TO_NAMES, SupportedChainId } from '../../constants/chains'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
@@ -9,12 +10,9 @@ import { useCallback, useEffect, useRef } from 'react'
 import { ArrowDownCircle, ChevronDown } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useModalOpen, useToggleModal } from '../../state/application/hooks'
-import { addPopup, ApplicationModal } from '../../state/application/reducer'
+import { ApplicationModal } from '../../state/application/reducer'
 import styled from 'styled-components'
 import { ExternalLink, MEDIA_WIDTHS } from '../../theme'
-import { switchToNetwork } from '../../utils/switchToNetwork'
-import { useAppDispatch } from '../../state/hooks'
-import ethereumLogoUrl from '../../assets/images/ethereum-logo.png'
 
 const ActiveRowLinkList = styled.div`
   display: flex;
@@ -142,30 +140,30 @@ const BridgeLabel = ({ chainId }: { chainId: SupportedChainId }) => {
   switch (chainId) {
     case SupportedChainId.ARBITRUM_ONE:
     case SupportedChainId.ARBITRUM_RINKEBY:
-      return <span>Arbitrum Bridge</span>
+      return <>Arbitrum Bridge</>
     case SupportedChainId.OPTIMISM:
     case SupportedChainId.OPTIMISTIC_KOVAN:
-      return <span>Optimism Bridge</span>
+      return <>Optimism Bridge</>
     case SupportedChainId.POLYGON:
     case SupportedChainId.POLYGON_MUMBAI:
-      return <span>Polygon Bridge</span>
+      return <>Polygon Bridge</>
     default:
-      return <span>Bridge</span>
+      return <>Bridge</>
   }
 }
 const ExplorerLabel = ({ chainId }: { chainId: SupportedChainId }) => {
   switch (chainId) {
     case SupportedChainId.ARBITRUM_ONE:
     case SupportedChainId.ARBITRUM_RINKEBY:
-      return <span>Arbiscan</span>
+      return <>Arbiscan</>
     case SupportedChainId.OPTIMISM:
     case SupportedChainId.OPTIMISTIC_KOVAN:
-      return <span>Optimistic Etherscan</span>
+      return <>Optimistic Etherscan</>
     case SupportedChainId.POLYGON:
     case SupportedChainId.POLYGON_MUMBAI:
-      return <span>Polygonscan</span>
+      return <>Polygonscan</>
     default:
-      return <span>Etherscan</span>
+      return <>Etherscan</>
   }
 }
 
@@ -177,9 +175,9 @@ function Row({
   onSelectChain: (targetChain: number) => void
 }) {
   const { provider, chainId } = useActiveWeb3React()
-  // if (!provider || !chainId) {
-  //   return null
-  // }
+  if (!provider || !chainId) {
+    return null
+  }
   const active = chainId === targetChain
   const { helpCenterUrl, explorer, bridge, label, logoUrl } = CHAIN_INFO[targetChain]
 
@@ -250,36 +248,17 @@ export default function NetworkSelector() {
 
   const info = chainId ? CHAIN_INFO[chainId] : undefined
 
-  const dispatch = useAppDispatch()
-
   const handleChainSwitch = useCallback(
-    (targetChain: number, skipToggle?: boolean) => {
+    async (targetChain: number, skipToggle?: boolean) => {
       if (!connector) return
 
-      switchToNetwork(connector, targetChain)
-        .then(() => {
-          if (!skipToggle) {
-            toggle()
-          }
+      await connector.activate(targetChain)
 
-          setSearchParams({ chain: getChainNameFromId(targetChain) })
-        })
-        .catch((error: any) => {
-          console.error('Failed to switch networks', error)
-
-          // we want app network <-> chainId param to be in sync, so if user changes the network by changing the URL
-          // but the request fails, revert the URL back to current chainId
-          if (chainId) {
-            setSearchParams({ chain: getChainNameFromId(chainId) })
-          }
-
-          if (!skipToggle) {
-            toggle()
-          }
-          dispatch(addPopup({ content: { failedSwitchNetwork: targetChain }, key: `failed-network-switch` }))
-        })
+      if (!skipToggle) {
+        toggle()
+      }
     },
-    [dispatch, connector, toggle, history, chainId]
+    [connector, toggle]
   )
 
   useEffect(() => {
@@ -301,15 +280,15 @@ export default function NetworkSelector() {
     }
   }, [chainId, history, urlChainId, urlChain])
 
-  // if (!chainId || !info || !provider) {
-  //   return null
-  // }
+  if (!chainId || !info || !provider) {
+    return null
+  }
 
   return (
     <SelectorWrapper className="uni-network-selector" ref={node as any} onMouseEnter={toggle} onMouseLeave={toggle}>
       <SelectorControls interactive>
-        <SelectorLogo interactive src={info?.logoUrl ?? ethereumLogoUrl} />
-        <SelectorLabel>{info?.label ?? 'Network'}</SelectorLabel>
+        <SelectorLogo interactive src={info.logoUrl} />
+        <SelectorLabel>{info.label}</SelectorLabel>
         <StyledChevronDown />
       </SelectorControls>
       {open && (
@@ -317,9 +296,13 @@ export default function NetworkSelector() {
           <FlyoutMenuContents>
             <FlyoutHeader>Select a network</FlyoutHeader>
             <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.MAINNET} />
-            <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.POLYGON} />
-            <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.OPTIMISM} />
-            <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.ARBITRUM_ONE} />
+            {connector !== fortmatic && (
+              <>
+                <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.POLYGON} />
+                <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.OPTIMISM} />
+                <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.ARBITRUM_ONE} />
+              </>
+            )}
           </FlyoutMenuContents>
         </FlyoutMenu>
       )}

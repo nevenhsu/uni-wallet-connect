@@ -1,6 +1,6 @@
 {
   "name": "@nevenhsu/uni-wallet-connect",
-  "version": "0.1.10",
+  "version": "0.1.11-beta.1",
   "description": "A library extracted from the Uniswap v3 codebase and rewritten for reusability.",
   "author": "nevenhsu",
   "license": "GPL-3.0-or-later",
@@ -40,6 +40,7 @@
     "@uniswap/sdk-core": "^3.0.1",
     "@uniswap/v3-periphery": "^1.4.1",
     "clsx": "^1.1.1",
+    "fortmatic": "^2.4.0",
     "jotai": "^1.6.5",
     "polished": "^4.2.2",
     "qs": "^6.10.3",

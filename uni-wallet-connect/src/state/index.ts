@@ -4,7 +4,6 @@ import multicall from '../lib/state/multicall'
 import { load, save } from 'redux-localstorage-simple'
 
 import application from './application/reducer'
-import logs from './logs/slice'
 import transactions from './transactions/reducer'
 import user from './user/reducer'
 import type { Reducer, AnyAction } from '@reduxjs/toolkit'
@@ -28,7 +27,6 @@ export function makeStore(options: Partial<StoreOptions> = {}) {
       user,
       transactions,
       multicall: multicall.reducer,
-      logs,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({ thunk: true })

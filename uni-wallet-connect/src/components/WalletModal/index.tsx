@@ -10,7 +10,15 @@ import styled from 'styled-components'
 
 import MetamaskIcon from '../../assets/images/metamask.png'
 import TallyIcon from '../../assets/images/tally.png'
-import { coinbaseWallet, getWalletForConnector, injected, network, Wallet, walletConnect } from '../../connectors'
+import {
+  coinbaseWallet,
+  fortmatic,
+  getWalletForConnector,
+  injected,
+  network,
+  Wallet,
+  walletConnect,
+} from '../../connectors'
 import { SUPPORTED_WALLETS } from '../../constants/wallet'
 import usePrevious from '../../hooks/usePrevious'
 import { useModalOpen, useWalletModalToggle } from '../../state/application/hooks'
@@ -95,6 +103,7 @@ const HoverText = styled.div`
   color: ${({ theme }) => theme.text1};
   display: flex;
   align-items: center;
+
   :hover {
     cursor: pointer;
   }
@@ -122,9 +131,9 @@ export default function WalletModal({
     [Wallet.INJECTED]: hooks.useSelectedIsActive(injected),
     [Wallet.COINBASE_WALLET]: hooks.useSelectedIsActive(coinbaseWallet),
     [Wallet.WALLET_CONNECT]: hooks.useSelectedIsActive(walletConnect),
+    [Wallet.FORTMATIC]: hooks.useSelectedIsActive(fortmatic),
   }
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
-  const previousWalletView = usePrevious(walletView)
 
   const [pendingConnector, setPendingConnector] = useState<Connector | undefined>()
   // Need to pass network as a default case because useSelectedError requirse a connector
@@ -152,7 +161,7 @@ export default function WalletModal({
   }, [walletModalOpen, setWalletView, connector])
 
   const tryActivation = async (connector: Connector) => {
-    connector.activate()
+    await connector.activate()
     const wallet = getWalletForConnector(connector)
     if (isActiveMap[wallet]) {
       dispatch(updateWalletOverride({ wallet }))
