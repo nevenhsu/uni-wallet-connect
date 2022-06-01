@@ -32,13 +32,13 @@ export default defineConfig([
   // ES
   {
     input,
-    output: { dir: 'dist/esm', preserveModules: true, format: 'es', indent: false },
+    output: { dir: 'dist/esm', preserveModules: true, format: 'es', indent: false, sourcemap: true },
     external,
     plugins: [
+      nodeResolve(resolveOptions),
       commonjs({
         ignoreGlobal: true,
       }),
-      nodeResolve(resolveOptions),
       typescript({ tsconfigOverride: noDeclarationFiles }),
       ...commonPlugins,
       babel({
@@ -53,13 +53,13 @@ export default defineConfig([
   // CommonJS
   {
     input,
-    output: { dir: 'dist/cjs', preserveModules: true, format: 'cjs', indent: false },
+    output: { dir: 'dist/cjs', preserveModules: true, format: 'cjs', indent: false, sourcemap: true },
     external,
     plugins: [
+      nodeResolve(resolveOptions),
       commonjs({
         ignoreGlobal: true,
       }),
-      nodeResolve(resolveOptions),
       typescript({ useTsconfigDeclarationDir: true }),
       ...commonPlugins,
       babel({
