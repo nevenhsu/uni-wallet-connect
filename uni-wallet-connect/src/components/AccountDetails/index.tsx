@@ -127,8 +127,11 @@ const AccountControl = styled.div`
   }
 `
 
-const AddressLink = styled(ExternalLink)<{ hasENS: boolean; isENS: boolean }>`
+const AccountView = styled.div`
   font-size: 0.825rem;
+`
+
+const AddressLink = styled(ExternalLink)<{ hasENS: boolean; isENS: boolean }>`
   color: ${({ theme }) => theme.text3};
   margin-left: 1rem;
   font-size: 0.825rem;
@@ -311,7 +314,7 @@ export default function AccountDetails({
                 {ENSName ? (
                   <>
                     <AccountControl>
-                      <div>
+                      <AccountView>
                         {account && (
                           <CopyHelper toCopy={account} iconPosition="left">
                             <span style={{ marginLeft: '4px' }}>
@@ -331,13 +334,13 @@ export default function AccountDetails({
                             </span>
                           </AddressLink>
                         )}
-                      </div>
+                      </AccountView>
                     </AccountControl>
                   </>
                 ) : (
                   <>
                     <AccountControl>
-                      <div>
+                      <AccountView>
                         {account && (
                           <CopyHelper toCopy={account} iconPosition="left">
                             <span style={{ marginLeft: '4px' }}>
@@ -357,7 +360,7 @@ export default function AccountDetails({
                             </span>
                           </AddressLink>
                         )}
-                      </div>
+                      </AccountView>
                     </AccountControl>
                   </>
                 )}

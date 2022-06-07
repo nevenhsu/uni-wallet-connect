@@ -1,6 +1,6 @@
 {
   "name": "@nevenhsu/uni-wallet-connect",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "A library extracted from the Uniswap v3 codebase and rewritten for reusability.",
   "author": "nevenhsu",
   "license": "GPL-3.0-or-later",
@@ -28,7 +28,8 @@
   "bugs": "https://github.com/nevenhsu/uni-wallet-connect/issues",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "rollup -c rollup.config.ts --configPlugin typescript"
+    "build": "rollup -c rollup.config.ts --configPlugin typescript",
+    "prepack": "npm run build"
   },
   "dependencies": {
     "@babel/runtime": "^7.17.9",
