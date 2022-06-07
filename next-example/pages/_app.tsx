@@ -1,4 +1,4 @@
-import '@reach/dialog/styles.css'
+import '@nevenhsu/uni-wallet-connect/dist/esm/index.css'
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import dynamic from 'next/dynamic'

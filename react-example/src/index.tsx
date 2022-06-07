@@ -1,6 +1,6 @@
-import '@reach/dialog/styles.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import '@nevenhsu/uni-wallet-connect/dist/esm/index.css'
 import './index.css'
 import App from './App'
 import Wrapper from './Wrapper'

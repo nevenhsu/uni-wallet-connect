@@ -8,6 +8,7 @@ import strip from '@rollup/plugin-strip'
 import svgr from '@svgr/rollup'
 import typescript from 'rollup-plugin-typescript2'
 import sourceMaps from 'rollup-plugin-sourcemaps'
+import postcss from 'rollup-plugin-postcss'
 
 import pkg from './package.json'
 
@@ -26,13 +27,22 @@ const resolveOptions = {
   dedupe: peerDependencies,
 }
 
-const commonPlugins = [svgr({ icon: true }), image(), sourceMaps(), json(), strip()]
+const commonPlugins = [
+  postcss({
+    extract: true,
+  }),
+  svgr({ icon: true }),
+  image(),
+  sourceMaps(),
+  json(),
+  strip(),
+]
 
 export default defineConfig([
   // ES
   {
     input,
-    output: { dir: 'dist/esm', preserveModules: true, format: 'es', indent: false, sourcemap: true },
+    output: { dir: 'dist/esm', preserveModules: true, format: 'es', indent: false },
     external,
     plugins: [
       nodeResolve(resolveOptions),
@@ -53,7 +63,7 @@ export default defineConfig([
   // CommonJS
   {
     input,
-    output: { dir: 'dist/cjs', preserveModules: true, format: 'cjs', indent: false, sourcemap: true },
+    output: { dir: 'dist/cjs', preserveModules: true, format: 'cjs', indent: false },
     external,
     plugins: [
       nodeResolve(resolveOptions),

@@ -11,13 +11,13 @@ NextJS is supported by default.
 See [next example](./next-example) for complete details.
 
 ```bash
-npm install @nevenhsu/uni-wallet-connect --force
+npm install @nevenhsu/uni-wallet-connect
 ```
 
 **pages/\_app.tsx**
 
 ```javascript
-import '@reach/dialog/styles.css'
+import '@nevenhsu/uni-wallet-connect/dist/esm/index.css'
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import dynamic from 'next/dynamic'

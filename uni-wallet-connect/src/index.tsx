@@ -1,3 +1,4 @@
+import '@reach/dialog/styles.css'
 import { ClassValue } from 'clsx'
 import React, { useEffect } from 'react'
 import useBlockNumber, { BlockNumberProvider } from './lib/hooks/useBlockNumber'
