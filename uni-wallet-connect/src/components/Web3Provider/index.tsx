@@ -20,10 +20,10 @@ interface ConnectorState {
 }
 
 // This component handles state changes in web3-react. It eagerly connects to all wallets.
-// It also checks for Coinbase Wallet, Wallet Connect, or Injected wallets to become active.
+// It also checks for Coinbase Wallet, Wallet Connect Fortmatic or Injected wallets to become active.
 function Web3Updater() {
   const dispatch = useAppDispatch()
-  const { hooks } = useWeb3React()
+  const { error, hooks } = useWeb3React()
 
   const walletOverride = useAppSelector((state) => state.user.walletOverride)
   const walletOverrideBackfilled = useAppSelector((state) => state.user.walletOverrideBackfilled)
@@ -40,15 +40,24 @@ function Web3Updater() {
   const fortmaticIsActive = hooks.useSelectedIsActive(fortmatic)
   const previousFortmaticIsActive = usePrevious(fortmaticIsActive)
 
-  const [eagerlyConnectingWallets, setEagerlyConnectingWallets] = useState(new Set())
+  const [isEagerlyConnecting, setIsEagerlyConnecting] = useState(false)
 
+  useEffect(() => {
+    if (error) {
+      console.error(`web3-react error: ${error}`)
+    }
+  }, [error])
+
+  // The dependency list is empty so this is only run once on mount
   useEffect(() => {
     if (walletOverride) {
       getConnectorForWallet(walletOverride).connectEagerly()
-      setEagerlyConnectingWallets(new Set(walletOverride))
+      setIsEagerlyConnecting(true)
     } else if (!walletOverrideBackfilled) {
-      WALLETS.map(getConnectorForWallet).forEach((connector) => connector.connectEagerly())
-      setEagerlyConnectingWallets(new Set(WALLETS))
+      WALLETS.filter((wallet) => wallet !== Wallet.FORTMATIC)
+        .map(getConnectorForWallet)
+        .forEach((connector) => connector.connectEagerly())
+      setIsEagerlyConnecting(true)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -78,7 +87,6 @@ function Web3Updater() {
 
     isActiveMap.forEach((state: ConnectorState, wallet: Wallet) => {
       const { isActive, previousIsActive } = state
-      const isEagerlyConnecting = eagerlyConnectingWallets.has(wallet)
       if (isActive && !previousIsActive) {
         // When a user manually sets their new connection, set a wallet override.
         // Also set an override when they were a user prior to this state being introduced.
@@ -88,8 +96,7 @@ function Web3Updater() {
 
         // Reset the eagerly connecting state.
         if (isEagerlyConnecting) {
-          eagerlyConnectingWallets.delete(wallet)
-          setEagerlyConnectingWallets(new Set([...eagerlyConnectingWallets]))
+          setIsEagerlyConnecting(false)
         }
       }
     })
@@ -105,8 +112,8 @@ function Web3Updater() {
     previousWalletConnectIsActive,
     fortmaticIsActive,
     previousFortmaticIsActive,
-    eagerlyConnectingWallets,
-    setEagerlyConnectingWallets,
+    isEagerlyConnecting,
+    setIsEagerlyConnecting,
   ])
 
   return null

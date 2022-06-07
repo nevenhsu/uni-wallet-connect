@@ -71,9 +71,8 @@ const ContentWrapper = styled.div`
 `
 
 const UpperSection = styled.div`
-  position: relative;
   color: ${({ theme }) => theme.text1};
-
+  position: relative;
   h5 {
     margin: 0;
     margin-bottom: 0.5rem;
@@ -111,8 +110,10 @@ const HoverText = styled.div`
 
 const WALLET_VIEWS = {
   OPTIONS: 'options',
+  OPTIONS_SECONDARY: 'options_secondary',
   ACCOUNT: 'account',
   PENDING: 'pending',
+  LEGAL: 'legal',
 }
 
 export default function WalletModal({
@@ -126,33 +127,39 @@ export default function WalletModal({
 }) {
   const isMobile = isMobileFn()
   const dispatch = useAppDispatch()
-  const { connector, error, hooks } = useWeb3React()
+  const { connector, error, hooks, account } = useWeb3React()
   const isActiveMap: Record<Wallet, boolean> = {
     [Wallet.INJECTED]: hooks.useSelectedIsActive(injected),
     [Wallet.COINBASE_WALLET]: hooks.useSelectedIsActive(coinbaseWallet),
     [Wallet.WALLET_CONNECT]: hooks.useSelectedIsActive(walletConnect),
     [Wallet.FORTMATIC]: hooks.useSelectedIsActive(fortmatic),
   }
+
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
+  const previousWalletView = usePrevious(walletView)
 
   const [pendingConnector, setPendingConnector] = useState<Connector | undefined>()
-  // Need to pass network as a default case because useSelectedError requirse a connector
+  // Need to pass network as a default case because useSelectedError requires a connector
   const pendingError = hooks.useSelectedError(pendingConnector || network)
 
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
 
-  const previousConnector = usePrevious(connector)
+  const previousAccount = usePrevious(account)
 
   const resetAccountView = useCallback(() => {
     setWalletView(WALLET_VIEWS.ACCOUNT)
   }, [setWalletView])
 
   useEffect(() => {
-    if (walletModalOpen && connector && connector !== previousConnector && !error) {
-      setWalletView(WALLET_VIEWS.ACCOUNT)
+    if (walletModalOpen) {
+      if (!account && previousAccount) {
+        setWalletView(WALLET_VIEWS.OPTIONS)
+      } else if (account !== previousAccount && !error) {
+        toggleWalletModal()
+      }
     }
-  }, [setWalletView, error, connector, walletModalOpen, previousConnector])
+  }, [account, previousAccount, error, toggleWalletModal, walletModalOpen])
 
   useEffect(() => {
     if (walletModalOpen) {

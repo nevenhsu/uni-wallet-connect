@@ -1,4 +1,5 @@
 import { Connector } from '@web3-react/types'
+import CopyHelper from '../../components/AccountDetails/Copy'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useCallback, useContext } from 'react'
 import { ExternalLink as LinkIcon, X as Close } from 'react-feather'
@@ -6,7 +7,7 @@ import { useAppDispatch } from '../../state/hooks'
 import { updateWalletOverride } from '../../state/user/reducer'
 import styled, { ThemeContext } from 'styled-components'
 
-import { injected } from '../../connectors'
+import { coinbaseWallet, injected } from '../../connectors'
 import { SUPPORTED_WALLETS } from '../../constants/wallet'
 import { clearAllTransactions } from '../../state/transactions/reducer'
 import { ExternalLink, LinkStyledButton, ThemedText } from '../../theme'
@@ -15,7 +16,6 @@ import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { ButtonSecondary } from '../Button'
 import StatusIcon from '../Identicon/StatusIcon'
 import { AutoRow } from '../Row'
-import Copy from './Copy'
 import Transaction from './Transaction'
 
 const HeaderRow = styled.div`
@@ -264,16 +264,19 @@ export default function AccountDetails({
               <AccountGroupingRow>
                 {formatConnectorName()}
                 <div>
-                  <WalletAction
-                    style={{ fontSize: '.825rem', fontWeight: 400, marginRight: '8px' }}
-                    onClick={() => {
-                      dispatch(updateWalletOverride({ wallet: undefined }))
-                      connector.deactivate()
-                    }}
-                    data-cy="wallet-disconnect"
-                  >
-                    <>Disconnect</>
-                  </WalletAction>
+                  {/* Coinbase Wallet reloads the page right now, which breaks the walletOverride from being set properly on localStorage */}
+                  {connector !== coinbaseWallet && (
+                    <WalletAction
+                      style={{ fontSize: '.825rem', fontWeight: 400, marginRight: '8px' }}
+                      onClick={() => {
+                        dispatch(updateWalletOverride({ wallet: undefined }))
+                        connector.deactivate()
+                      }}
+                      data-cy="wallet-disconnect"
+                    >
+                      <>Disconnect</>
+                    </WalletAction>
+                  )}
                   <WalletAction
                     style={{ fontSize: '.825rem', fontWeight: 400 }}
                     onClick={() => {
@@ -310,11 +313,11 @@ export default function AccountDetails({
                     <AccountControl>
                       <div>
                         {account && (
-                          <Copy toCopy={account}>
+                          <CopyHelper toCopy={account} iconPosition="left">
                             <span style={{ marginLeft: '4px' }}>
                               <>Copy Address</>
                             </span>
-                          </Copy>
+                          </CopyHelper>
                         )}
                         {chainId && account && (
                           <AddressLink
@@ -336,11 +339,11 @@ export default function AccountDetails({
                     <AccountControl>
                       <div>
                         {account && (
-                          <Copy toCopy={account}>
+                          <CopyHelper toCopy={account} iconPosition="left">
                             <span style={{ marginLeft: '4px' }}>
                               <>Copy Address</>
                             </span>
-                          </Copy>
+                          </CopyHelper>
                         )}
                         {chainId && account && (
                           <AddressLink

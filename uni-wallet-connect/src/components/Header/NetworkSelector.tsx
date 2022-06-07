@@ -12,7 +12,9 @@ import { useSearchParams } from 'react-router-dom'
 import { useModalOpen, useToggleModal } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
 import styled from 'styled-components'
-import { ExternalLink, MEDIA_WIDTHS } from '../../theme'
+import { ExternalLink, MEDIA_WIDTHS, Z_INDEX } from '../../theme'
+import { replaceURLParam } from '../../utils/routes'
+import { switchChain } from '../../utils/switchChain'
 
 const ActiveRowLinkList = styled.div`
   display: flex;
@@ -51,7 +53,7 @@ const FlyoutMenu = styled.div`
   position: absolute;
   top: 54px;
   width: 272px;
-  z-index: 1500;
+  z-index: ${Z_INDEX.modal};
   padding-top: 10px;
   @media screen and (min-width: ${MEDIA_WIDTHS.upToSmall}px) {
     top: 40px;
@@ -206,7 +208,7 @@ function Row({
           ) : null}
           {helpCenterUrl ? (
             <ExternalLink href={helpCenterUrl}>
-              Help Center <LinkOutCircle />
+              <>Help Center</> <LinkOutCircle />
             </ExternalLink>
           ) : null}
         </ActiveRowLinkList>
@@ -248,11 +250,11 @@ export default function NetworkSelector() {
 
   const info = chainId ? CHAIN_INFO[chainId] : undefined
 
-  const handleChainSwitch = useCallback(
+  const onSelectChain = useCallback(
     async (targetChain: number, skipToggle?: boolean) => {
       if (!connector) return
 
-      await connector.activate(targetChain)
+      switchChain(connector, targetChain)
 
       if (!skipToggle) {
         toggle()
@@ -269,16 +271,16 @@ export default function NetworkSelector() {
       setSearchParams({ chain: getChainNameFromId(chainId) })
       // otherwise assume network change originates from URL
     } else if (urlChainId && urlChainId !== chainId) {
-      handleChainSwitch(urlChainId, true)
+      onSelectChain(urlChainId, true)
     }
-  }, [chainId, urlChainId, prevChainId, handleChainSwitch, history])
+  }, [chainId, urlChainId, prevChainId, onSelectChain])
 
   // set chain parameter on initial load if not there
   useEffect(() => {
     if (chainId && !urlChainId) {
       setSearchParams({ chain: getChainNameFromId(chainId) })
     }
-  }, [chainId, history, urlChainId, urlChain])
+  }, [chainId, urlChainId, urlChain])
 
   if (!chainId || !info || !provider) {
     return null
@@ -294,13 +296,16 @@ export default function NetworkSelector() {
       {open && (
         <FlyoutMenu>
           <FlyoutMenuContents>
-            <FlyoutHeader>Select a network</FlyoutHeader>
-            <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.MAINNET} />
+            <FlyoutHeader>
+              <>Select a network</>
+            </FlyoutHeader>
+            <Row onSelectChain={onSelectChain} targetChain={SupportedChainId.MAINNET} />
+            {/* Formatic is only supported on mainnet, so we hide the other chains */}
             {connector !== fortmatic && (
               <>
-                <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.POLYGON} />
-                <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.OPTIMISM} />
-                <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.ARBITRUM_ONE} />
+                <Row onSelectChain={onSelectChain} targetChain={SupportedChainId.POLYGON} />
+                <Row onSelectChain={onSelectChain} targetChain={SupportedChainId.OPTIMISM} />
+                <Row onSelectChain={onSelectChain} targetChain={SupportedChainId.ARBITRUM_ONE} />
               </>
             )}
           </FlyoutMenuContents>
