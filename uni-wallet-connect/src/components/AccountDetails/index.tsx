@@ -4,7 +4,7 @@ import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useCallback, useContext } from 'react'
 import { ExternalLink as LinkIcon, X as Close } from 'react-feather'
 import { useAppDispatch } from '../../state/hooks'
-import { updateWalletOverride } from '../../state/user/reducer'
+import { updateWalletOverride } from '../../state/wallet/reducer'
 import styled, { ThemeContext } from 'styled-components'
 
 import { coinbaseWallet, injected } from '../../connectors'
@@ -132,6 +132,7 @@ const AccountView = styled.div`
 `
 
 const AddressLink = styled(ExternalLink)<{ hasENS: boolean; isENS: boolean }>`
+  font-size: 0.825rem;
   color: ${({ theme }) => theme.text3};
   margin-left: 1rem;
   font-size: 0.825rem;
@@ -273,6 +274,7 @@ export default function AccountDetails({
                       style={{ fontSize: '.825rem', fontWeight: 400, marginRight: '8px' }}
                       onClick={() => {
                         dispatch(updateWalletOverride({ wallet: undefined }))
+                        openOptions()
                         connector.deactivate()
                       }}
                       data-cy="wallet-disconnect"

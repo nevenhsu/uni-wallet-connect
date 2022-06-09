@@ -6,9 +6,10 @@ import { load, save } from 'redux-localstorage-simple'
 import application from './application/reducer'
 import transactions from './transactions/reducer'
 import user from './user/reducer'
+import wallet from './wallet/reducer'
 import type { Reducer, AnyAction } from '@reduxjs/toolkit'
 
-const PERSISTED_KEYS: string[] = ['user', 'transactions']
+const PERSISTED_KEYS: string[] = ['user', 'transactions', 'wallet']
 
 export type StoreOptions = {
   reducers: { [key: string]: Reducer<any, AnyAction> }
@@ -20,11 +21,12 @@ export function makeStore(options: Partial<StoreOptions> = {}) {
   const { reducers = [], middleware = [], persistedKeys: keys = [] } = options || {}
   const persistedKeys = [...PERSISTED_KEYS, ...keys]
 
-  return configureStore({
+  const store = configureStore({
     reducer: {
       ...reducers,
       application,
       user,
+      wallet,
       transactions,
       multicall: multicall.reducer,
     },
@@ -34,11 +36,12 @@ export function makeStore(options: Partial<StoreOptions> = {}) {
         .concat(middleware),
     preloadedState: load({ states: persistedKeys, disableWarnings: true }),
   })
+
+  setupListeners(store.dispatch)
+
+  return store
 }
 
-const store = makeStore()
-
-setupListeners(store.dispatch)
-
-export type AppState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
+export type Store = ReturnType<typeof makeStore>
+export type AppState = ReturnType<Store['getState']>
+export type AppDispatch = Store['dispatch']

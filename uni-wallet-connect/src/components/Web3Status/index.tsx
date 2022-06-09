@@ -1,9 +1,10 @@
 import { useWeb3React } from '@web3-react/core'
-import { ChainIdNotAllowedError } from '@web3-react/store'
 import { Connector } from '@web3-react/types'
+import { getWalletForConnector, isChainAllowed } from 'connectors'
 import { darken } from 'polished'
 import { useMemo } from 'react'
 import { Activity } from 'react-feather'
+import { useAppSelector } from '../../state/hooks'
 import styled, { css } from 'styled-components'
 
 import useENSName from '../../hooks/useENSName'
@@ -128,7 +129,10 @@ function WrappedStatusIcon({ connector }: { connector: Connector }) {
 }
 
 function Web3StatusInner() {
-  const { account, connector, error } = useWeb3React()
+  const { account, connector, chainId } = useWeb3React()
+  const error = useAppSelector((state) => state.wallet.errorByWallet[getWalletForConnector(connector)])
+
+  const chainNotAllowed = chainId && !isChainAllowed(connector, chainId)
 
   const { ENSName } = useENSName(account ?? undefined)
 
@@ -142,10 +146,27 @@ function Web3StatusInner() {
   const pending = sortedRecentTransactions.filter((tx) => !tx.receipt).map((tx) => tx.hash)
 
   const hasPendingTransactions = !!pending.length
-
   const toggleWalletModal = useWalletModalToggle()
 
-  if (account) {
+  if (chainNotAllowed) {
+    return (
+      <Web3StatusError onClick={toggleWalletModal}>
+        <NetworkIcon />
+        <Text>
+          <>Wrong Network</>
+        </Text>
+      </Web3StatusError>
+    )
+  } else if (error) {
+    return (
+      <Web3StatusError onClick={toggleWalletModal}>
+        <NetworkIcon />
+        <Text>
+          <>Error</>
+        </Text>
+      </Web3StatusError>
+    )
+  } else if (account) {
     return (
       <Web3StatusConnected id="web3-status-connected" onClick={toggleWalletModal} pending={hasPendingTransactions}>
         {hasPendingTransactions ? (
@@ -159,13 +180,6 @@ function Web3StatusInner() {
         )}
         {!hasPendingTransactions && connector && <WrappedStatusIcon connector={connector} />}
       </Web3StatusConnected>
-    )
-  } else if (error) {
-    return (
-      <Web3StatusError onClick={toggleWalletModal}>
-        <NetworkIcon />
-        <Text>{error instanceof ChainIdNotAllowedError ? <span>Wrong Network</span> : <span>Error</span>}</Text>
-      </Web3StatusError>
     )
   } else {
     return (
