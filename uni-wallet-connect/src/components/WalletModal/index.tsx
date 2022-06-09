@@ -1,11 +1,10 @@
 import { useWeb3React } from '@web3-react/core'
-import { ChainIdNotAllowedError } from '@web3-react/store'
 import { Connector } from '@web3-react/types'
 import { AutoColumn } from '../../components/Column'
 import { useCallback, useEffect, useState } from 'react'
 import { ArrowLeft, X as Close } from 'react-feather'
-import { useAppDispatch } from '../../state/hooks'
-import { updateWalletOverride } from '../../state/user/reducer'
+import { useAppDispatch, useAppSelector } from '../../state/hooks'
+import { updateWalletError, updateWalletOverride } from '../../state/wallet/reducer'
 import styled from 'styled-components'
 
 import MetamaskIcon from '../../assets/images/metamask.png'
@@ -127,8 +126,8 @@ export default function WalletModal({
 }) {
   const isMobile = isMobileFn()
   const dispatch = useAppDispatch()
-  const { connector, error, hooks, account } = useWeb3React()
-  const isActiveMap: Record<Wallet, boolean> = {
+  const { connector, hooks } = useWeb3React()
+  const isActiveMap: Partial<Record<Wallet, boolean>> = {
     [Wallet.INJECTED]: hooks.useSelectedIsActive(injected),
     [Wallet.COINBASE_WALLET]: hooks.useSelectedIsActive(coinbaseWallet),
     [Wallet.WALLET_CONNECT]: hooks.useSelectedIsActive(walletConnect),
@@ -139,27 +138,16 @@ export default function WalletModal({
   const previousWalletView = usePrevious(walletView)
 
   const [pendingConnector, setPendingConnector] = useState<Connector | undefined>()
-  // Need to pass network as a default case because useSelectedError requires a connector
-  const pendingError = hooks.useSelectedError(pendingConnector || network)
+  const pendingError = useAppSelector((state) =>
+    pendingConnector ? state.wallet.errorByWallet[getWalletForConnector(pendingConnector)] : undefined
+  )
 
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
 
-  const previousAccount = usePrevious(account)
-
-  const resetAccountView = useCallback(() => {
-    setWalletView(WALLET_VIEWS.ACCOUNT)
+  const openOptions = useCallback(() => {
+    setWalletView(WALLET_VIEWS.OPTIONS)
   }, [setWalletView])
-
-  useEffect(() => {
-    if (walletModalOpen) {
-      if (!account && previousAccount) {
-        setWalletView(WALLET_VIEWS.OPTIONS)
-      } else if (account !== previousAccount && !error) {
-        toggleWalletModal()
-      }
-    }
-  }, [account, previousAccount, error, toggleWalletModal, walletModalOpen])
 
   useEffect(() => {
     if (walletModalOpen) {
@@ -168,14 +156,36 @@ export default function WalletModal({
   }, [walletModalOpen, setWalletView, connector])
 
   const tryActivation = async (connector: Connector) => {
-    await connector.activate()
     const wallet = getWalletForConnector(connector)
-    if (isActiveMap[wallet]) {
-      dispatch(updateWalletOverride({ wallet }))
-      setWalletView(WALLET_VIEWS.ACCOUNT)
-    } else {
+
+    try {
+      // Fortmatic opens it's own modal on activation to log in. This modal has a tabIndex
+      // collision into the WalletModal, so we special case by closing the modal.
+      if (connector === fortmatic) {
+        toggleWalletModal()
+      }
+
       setPendingConnector(connector)
       setWalletView(WALLET_VIEWS.PENDING)
+
+      if (isActiveMap[wallet]) {
+        await connector.activate()
+        setWalletView(WALLET_VIEWS.ACCOUNT)
+        dispatch(updateWalletOverride({ wallet }))
+      } else {
+        await connector.activate()
+      }
+
+      dispatch(updateWalletError({ wallet, error: undefined }))
+    } catch (error) {
+      if (
+        connector === fortmatic &&
+        error.message === 'Fortmatic RPC Error: [-32603] Fortmatic: User denied account access.'
+      ) {
+        return
+      }
+
+      dispatch(updateWalletError({ wallet, error: error.message }))
     }
   }
 
@@ -282,25 +292,6 @@ export default function WalletModal({
   }
 
   function getModalContent() {
-    if (error) {
-      return (
-        <UpperSection>
-          <CloseIcon onClick={toggleWalletModal}>
-            <CloseColor />
-          </CloseIcon>
-          <HeaderRow>{error instanceof ChainIdNotAllowedError ? <>Wrong Network</> : <>Error connecting</>}</HeaderRow>
-          <ContentWrapper>
-            {error instanceof ChainIdNotAllowedError ? (
-              <h5>
-                <>Please connect to a supported network in the dropdown menu or in your wallet.</>
-              </h5>
-            ) : (
-              <>Error connecting. Try refreshing the page.</>
-            )}
-          </ContentWrapper>
-        </UpperSection>
-      )
-    }
     if (walletView === WALLET_VIEWS.ACCOUNT) {
       return (
         <AccountDetails
@@ -308,7 +299,7 @@ export default function WalletModal({
           pendingTransactions={pendingTransactions}
           confirmedTransactions={confirmedTransactions}
           ENSName={ENSName}
-          openOptions={() => setWalletView(WALLET_VIEWS.OPTIONS)}
+          openOptions={openOptions}
         />
       )
     }
@@ -324,9 +315,9 @@ export default function WalletModal({
         </HeaderRow>
         <ContentWrapper>
           <AutoColumn gap="16px">
-            {walletView === WALLET_VIEWS.PENDING && (
+            {walletView === WALLET_VIEWS.PENDING && pendingConnector && (
               <PendingView
-                resetAccountView={resetAccountView}
+                openOptions={openOptions}
                 connector={pendingConnector}
                 error={!!pendingError}
                 tryActivation={tryActivation}

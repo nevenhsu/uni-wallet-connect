@@ -1,4 +1,5 @@
 import clsx, { ClassValue } from 'clsx'
+import { isChainAllowed } from '../../connectors'
 import { CHAIN_INFO } from '../../constants/chainInfo'
 import { SupportedChainId } from '../../constants/chains'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
@@ -13,7 +14,6 @@ import useAppContext from '../../hooks/useAppContext'
 type HeaderProps = {
   classes?: ClassValue
 }
-
 const HeaderControls = styled.div`
   display: flex;
   flex-direction: row;
@@ -31,11 +31,6 @@ const HeaderElement = styled.div`
 
   &:not(:first-child) {
     margin-left: 0.5em;
-  }
-
-  /* addresses safari's lack of support for "gap" */
-  & > *:not(:first-child) {
-    margin-left: 8px;
   }
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -67,14 +62,16 @@ const BalanceText = styled(Text)`
 
 export default function Header(props: HeaderProps) {
   const { classes } = props
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, connector } = useActiveWeb3React()
+  const { state } = useAppContext()
+
+  const chainNotAllowed = chainId && !isChainAllowed(connector, chainId)
 
   const userEthBalance = useNativeCurrencyBalances(account ? [account] : [])?.[account ?? '']
-  const { state } = useAppContext()
 
   const {
     nativeCurrency: { symbol: nativeCurrencySymbol },
-  } = CHAIN_INFO[chainId ? chainId : SupportedChainId.MAINNET]
+  } = CHAIN_INFO[!chainId || chainNotAllowed ? SupportedChainId.MAINNET : chainId]
 
   return (
     <HeaderControls className={clsx('uni-wallet-header', state.walletClasses)}>

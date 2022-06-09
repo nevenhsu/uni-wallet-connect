@@ -1,18 +1,33 @@
 import { useWeb3React, Web3ReactProvider } from '@web3-react/core'
+import { Connector } from '@web3-react/types'
 import {
   coinbaseWallet,
   createOrderedConnectors,
   fortmatic,
   getConnectorForWallet,
+  gnosisSafe,
   injected,
+  MODAL_WALLETS,
+  network,
   Wallet,
   walletConnect,
-  WALLETS,
 } from '../../connectors'
 import usePrevious from '../../hooks/usePrevious'
 import { useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../state/hooks'
-import { updateWalletOverride } from '../../state/user/reducer'
+import { updateWalletOverride } from '../../state/wallet/reducer'
+
+const connect = async (connector: Connector) => {
+  try {
+    if (connector.connectEagerly) {
+      await connector.connectEagerly()
+    } else {
+      await connector.activate()
+    }
+  } catch (error) {
+    console.debug(`web3-react error: ${typeof connector}, ${error}`)
+  }
+}
 
 interface ConnectorState {
   isActive: boolean
@@ -23,10 +38,10 @@ interface ConnectorState {
 // It also checks for Coinbase Wallet, Wallet Connect Fortmatic or Injected wallets to become active.
 function Web3Updater() {
   const dispatch = useAppDispatch()
-  const { error, hooks } = useWeb3React()
+  const { hooks } = useWeb3React()
 
-  const walletOverride = useAppSelector((state) => state.user.walletOverride)
-  const walletOverrideBackfilled = useAppSelector((state) => state.user.walletOverrideBackfilled)
+  const walletOverride = useAppSelector((state) => state.wallet.walletOverride)
+  const walletOverrideBackfilled = useAppSelector((state) => state.wallet.walletOverrideBackfilled)
 
   const injectedIsActive = hooks.useSelectedIsActive(injected)
   const previousInjectedIsActive = usePrevious(injectedIsActive)
@@ -42,21 +57,18 @@ function Web3Updater() {
 
   const [isEagerlyConnecting, setIsEagerlyConnecting] = useState(false)
 
-  useEffect(() => {
-    if (error) {
-      console.error(`web3-react error: ${error}`)
-    }
-  }, [error])
-
   // The dependency list is empty so this is only run once on mount
   useEffect(() => {
+    connect(gnosisSafe)
+    connect(network)
+
     if (walletOverride) {
-      getConnectorForWallet(walletOverride).connectEagerly()
+      connect(getConnectorForWallet(walletOverride))
       setIsEagerlyConnecting(true)
     } else if (!walletOverrideBackfilled) {
-      WALLETS.filter((wallet) => wallet !== Wallet.FORTMATIC)
+      MODAL_WALLETS.filter((wallet) => wallet !== Wallet.FORTMATIC)
         .map(getConnectorForWallet)
-        .forEach((connector) => connector.connectEagerly())
+        .forEach(connect)
       setIsEagerlyConnecting(true)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -124,7 +136,7 @@ interface Props {
 }
 
 export default function Web3Provider({ children }: Props) {
-  const walletOverride = useAppSelector((state) => state.user.walletOverride)
+  const walletOverride = useAppSelector((state) => state.wallet.walletOverride)
   const connectors = createOrderedConnectors(walletOverride)
   return (
     <Web3ReactProvider connectors={connectors}>
