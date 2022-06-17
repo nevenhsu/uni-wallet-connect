@@ -9,7 +9,7 @@ import user from './user/reducer'
 import wallet from './wallet/reducer'
 import type { Reducer, AnyAction } from '@reduxjs/toolkit'
 
-const PERSISTED_KEYS: string[] = ['user', 'transactions', 'wallet']
+const PERSISTED_KEYS: string[] = ['user', 'transactions']
 
 export type StoreOptions = {
   reducers: { [key: string]: Reducer<any, AnyAction> }

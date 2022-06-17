@@ -1,13 +1,13 @@
 import { useWeb3React } from '@web3-react/core'
 import { Connector } from '@web3-react/types'
-import { getWalletForConnector, isChainAllowed } from 'connectors'
+import { getWalletForConnector } from '../../connectors'
 import { darken } from 'polished'
 import { useMemo } from 'react'
 import { Activity } from 'react-feather'
 import { useAppSelector } from '../../state/hooks'
 import styled, { css } from 'styled-components'
+import { isChainAllowed } from '../../utils/switchChain'
 
-import useENSName from '../../hooks/useENSName'
 import { useWalletModalToggle } from '../../state/application/hooks'
 import { isTransactionRecent, useAllTransactions } from '../../state/transactions/hooks'
 import { TransactionDetails } from '../../state/transactions/types'
@@ -129,12 +129,11 @@ function WrappedStatusIcon({ connector }: { connector: Connector }) {
 }
 
 function Web3StatusInner() {
-  const { account, connector, chainId } = useWeb3React()
+  const { account, connector, chainId, ENSName } = useWeb3React()
+
   const error = useAppSelector((state) => state.wallet.errorByWallet[getWalletForConnector(connector)])
 
-  const chainNotAllowed = chainId && !isChainAllowed(connector, chainId)
-
-  const { ENSName } = useENSName(account ?? undefined)
+  const chainAllowed = chainId && isChainAllowed(connector, chainId)
 
   const allTransactions = useAllTransactions()
 
@@ -148,7 +147,9 @@ function Web3StatusInner() {
   const hasPendingTransactions = !!pending.length
   const toggleWalletModal = useWalletModalToggle()
 
-  if (chainNotAllowed) {
+  if (!chainId) {
+    return null
+  } else if (!chainAllowed) {
     return (
       <Web3StatusError onClick={toggleWalletModal}>
         <NetworkIcon />
@@ -171,7 +172,10 @@ function Web3StatusInner() {
       <Web3StatusConnected id="web3-status-connected" onClick={toggleWalletModal} pending={hasPendingTransactions}>
         {hasPendingTransactions ? (
           <RowBetween>
-            <Text>{pending?.length} Pending</Text> <Loader stroke="white" />
+            <Text>
+              <>{pending?.length} Pending</>
+            </Text>{' '}
+            <Loader stroke="white" />
           </RowBetween>
         ) : (
           <>
@@ -184,16 +188,16 @@ function Web3StatusInner() {
   } else {
     return (
       <Web3StatusConnect id="connect-wallet" onClick={toggleWalletModal} faded={!account}>
-        <Text>Connect Wallet</Text>
+        <Text>
+          <>Connect Wallet</>
+        </Text>
       </Web3StatusConnect>
     )
   }
 }
 
 export default function Web3Status() {
-  const { account } = useWeb3React()
-
-  const { ENSName } = useENSName(account ?? undefined)
+  const { ENSName } = useWeb3React()
 
   const allTransactions = useAllTransactions()
 

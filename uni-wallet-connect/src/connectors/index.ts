@@ -6,9 +6,10 @@ import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import { Connector } from '@web3-react/types'
 import { WalletConnect } from '@web3-react/walletconnect'
-import { ALL_SUPPORTED_CHAIN_IDS, SupportedChainId } from '../constants/chains'
+import { SupportedChainId } from '../constants/chains'
 import { INFURA_NETWORK_URLS } from '../constants/infura'
 import Fortmatic from 'fortmatic'
+import { useMemo } from 'react'
 
 const APP_NAME = process.env.REACT_APP_NAME || process.env.NEXT_PUBLIC_APP_NAME || 'dapp'
 const LOGO_URL = process.env.REACT_APP_LOGO_URL || process.env.NEXT_PUBLIC_LOGO_URL
@@ -24,23 +25,10 @@ export enum Wallet {
   GNOSIS_SAFE = 'GNOSIS_SAFE',
 }
 
-export type ModalWallet = Exclude<Wallet, Wallet.NETWORK | Wallet.GNOSIS_SAFE>
-
 export const MODAL_WALLETS = [Wallet.COINBASE_WALLET, Wallet.WALLET_CONNECT, Wallet.INJECTED, Wallet.FORTMATIC]
 
-export const isChainAllowed = (connector: Connector, chainId: number) => {
-  switch (connector) {
-    case fortmatic:
-      return chainId === SupportedChainId.MAINNET
-    case injected:
-    case coinbaseWallet:
-    case walletConnect:
-    case network:
-    case gnosisSafe:
-      return ALL_SUPPORTED_CHAIN_IDS.includes(chainId)
-    default:
-      return false
-  }
+function onError(error: Error) {
+  console.debug(`web3-react error: ${error}`)
 }
 
 export const getWalletForConnector = (connector: Connector) => {
@@ -86,7 +74,7 @@ const getConnectorListItemForWallet = (wallet: Wallet) => {
   }
 }
 
-export const getHooksForWallet = (wallet: Wallet) => {
+const getHooksForWallet = (wallet: Wallet) => {
   switch (wallet) {
     case Wallet.INJECTED:
       return injectedHooks
@@ -107,7 +95,7 @@ export const [network, networkHooks] = initializeConnector<Network>(
   (actions) => new Network({ actions, urlMap: INFURA_NETWORK_URLS, defaultChainId: DEFAULT_CHAIN_ID })
 )
 
-export const [injected, injectedHooks] = initializeConnector<MetaMask>((actions) => new MetaMask({ actions }))
+export const [injected, injectedHooks] = initializeConnector<MetaMask>((actions) => new MetaMask({ actions, onError }))
 
 export const [gnosisSafe, gnosisSafeHooks] = initializeConnector<GnosisSafe>((actions) => new GnosisSafe({ actions }))
 
@@ -119,7 +107,7 @@ export const [walletConnect, walletConnectHooks] = initializeConnector<WalletCon
         rpc: INFURA_NETWORK_URLS,
         qrcode: true,
       },
-      treatModalCloseAsError: true,
+      onError,
     })
 )
 
@@ -136,6 +124,7 @@ export const [coinbaseWallet, coinbaseWalletHooks] = initializeConnector<Coinbas
         appName: APP_NAME,
         appLogoUrl: LOGO_URL,
       },
+      onError,
     })
 )
 
@@ -144,18 +133,18 @@ interface ConnectorListItem {
   hooks: Web3ReactHooks
 }
 
-export const createOrderedConnectors = (walletOverride: Wallet | undefined) => {
-  const connectors: ConnectorListItem[] = [{ connector: gnosisSafe, hooks: gnosisSafeHooks }]
-  if (walletOverride) {
-    connectors.push(getConnectorListItemForWallet(walletOverride))
-  }
-  MODAL_WALLETS.filter((wallet) => wallet !== walletOverride).forEach((wallet) => {
-    connectors.push(getConnectorListItemForWallet(wallet))
-  })
-  connectors.push({ connector: network, hooks: networkHooks })
-  const web3ReactConnectors: [Connector, Web3ReactHooks][] = connectors.map(({ connector, hooks }) => [
-    connector,
-    hooks,
-  ])
-  return web3ReactConnectors
+export function useConnectors(selectedWallet: Wallet | undefined) {
+  return useMemo(() => {
+    const connectors: ConnectorListItem[] = [{ connector: gnosisSafe, hooks: gnosisSafeHooks }]
+    if (selectedWallet) {
+      connectors.push(getConnectorListItemForWallet(selectedWallet))
+    }
+    connectors.push(...MODAL_WALLETS.filter((wallet) => wallet !== selectedWallet).map(getConnectorListItemForWallet))
+    connectors.push({ connector: network, hooks: networkHooks })
+    const web3ReactConnectors: [Connector, Web3ReactHooks][] = connectors.map(({ connector, hooks }) => [
+      connector,
+      hooks,
+    ])
+    return web3ReactConnectors
+  }, [selectedWallet])
 }

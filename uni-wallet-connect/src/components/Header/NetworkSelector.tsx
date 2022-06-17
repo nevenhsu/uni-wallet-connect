@@ -1,4 +1,4 @@
-import { fortmatic, getWalletForConnector } from '../../connectors'
+import { getWalletForConnector } from '../../connectors'
 import { CHAIN_INFO } from '../../constants/chainInfo'
 import { CHAIN_IDS_TO_NAMES, SupportedChainId } from '../../constants/chains'
 import useActiveWeb3React from '../../hooks/useActiveWeb3React'
@@ -15,8 +15,7 @@ import { useAppDispatch } from '../../state/hooks'
 import { updateWalletError } from '../../state/wallet/reducer'
 import styled from 'styled-components'
 import { ExternalLink, MEDIA_WIDTHS, Z_INDEX } from '../../theme'
-import { replaceURLParam } from '../../utils/routes'
-import { switchChain } from '../../utils/switchChain'
+import { isChainAllowed, switchChain } from '../../utils/switchChain'
 
 const ActiveRowLinkList = styled.div`
   display: flex;
@@ -258,6 +257,13 @@ const getChainNameFromId = (id: string | number) => {
   return CHAIN_IDS_TO_NAMES[id as SupportedChainId] || ''
 }
 
+const NETWORK_SELECTOR_CHAINS = [
+  SupportedChainId.MAINNET,
+  SupportedChainId.POLYGON,
+  SupportedChainId.OPTIMISM,
+  SupportedChainId.ARBITRUM_ONE,
+]
+
 export default function NetworkSelector() {
   const dispatch = useAppDispatch()
   const { chainId, provider, connector } = useActiveWeb3React()
@@ -288,11 +294,17 @@ export default function NetworkSelector() {
         setSearchParams({ chain: getChainNameFromId(targetChain) })
       } catch (error) {
         console.error('Failed to switch networks', error)
+
         // we want app network <-> chainId param to be in sync, so if user changes the network by changing the URL
         // but the request fails, revert the URL back to current chainId
         if (chainId) {
           setSearchParams({ chain: getChainNameFromId(chainId) })
         }
+
+        if (!skipToggle) {
+          toggle()
+        }
+
         dispatch(updateWalletError({ wallet, error: error.message }))
         dispatch(addPopup({ content: { failedSwitchNetwork: targetChain }, key: `failed-network-switch` }))
       }
@@ -336,14 +348,10 @@ export default function NetworkSelector() {
             <FlyoutHeader>
               <>Select a network</>
             </FlyoutHeader>
-            <Row onSelectChain={onSelectChain} targetChain={SupportedChainId.MAINNET} />
-            {/* Formatic is only supported on mainnet, so we hide the other chains */}
-            {connector !== fortmatic && (
-              <>
-                <Row onSelectChain={onSelectChain} targetChain={SupportedChainId.POLYGON} />
-                <Row onSelectChain={onSelectChain} targetChain={SupportedChainId.OPTIMISM} />
-                <Row onSelectChain={onSelectChain} targetChain={SupportedChainId.ARBITRUM_ONE} />
-              </>
+            {NETWORK_SELECTOR_CHAINS.map((chainId: SupportedChainId) =>
+              isChainAllowed(connector, chainId) ? (
+                <Row onSelectChain={onSelectChain} targetChain={chainId} key={chainId} />
+              ) : null
             )}
           </FlyoutMenuContents>
         </FlyoutMenu>

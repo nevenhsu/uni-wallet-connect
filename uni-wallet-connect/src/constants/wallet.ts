@@ -12,7 +12,7 @@ const hasFortmatic = Boolean(FORTMATIC_KEY)
 
 interface WalletInfo {
   connector?: Connector
-  wallet: Wallet
+  wallet?: Wallet
   name: string
   iconURL: string
   description: string
@@ -64,7 +64,6 @@ const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
   },
   COINBASE_LINK: {
     name: 'Open in Coinbase Wallet',
-    wallet: Wallet.COINBASE_WALLET,
     iconURL: COINBASE_ICON_URL,
     description: 'Open in Coinbase Wallet app.',
     href: 'https://go.cb-w.com/mtUDhEZPy1',

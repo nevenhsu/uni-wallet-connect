@@ -4,22 +4,14 @@ import { AutoColumn } from '../../components/Column'
 import { useCallback, useEffect, useState } from 'react'
 import { ArrowLeft, X as Close } from 'react-feather'
 import { useAppDispatch, useAppSelector } from '../../state/hooks'
-import { updateWalletError, updateWalletOverride } from '../../state/wallet/reducer'
+import { updateSelectedWallet } from '../../state/user/reducer'
+import { updateWalletError } from '../../state/wallet/reducer'
 import styled from 'styled-components'
 
 import MetamaskIcon from '../../assets/images/metamask.png'
 import TallyIcon from '../../assets/images/tally.png'
-import {
-  coinbaseWallet,
-  fortmatic,
-  getWalletForConnector,
-  injected,
-  network,
-  Wallet,
-  walletConnect,
-} from '../../connectors'
+import { fortmatic, getWalletForConnector, injected, network } from '../../connectors'
 import { SUPPORTED_WALLETS } from '../../constants/wallet'
-import usePrevious from '../../hooks/usePrevious'
 import { useModalOpen, useWalletModalToggle } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
 import { isMobileFn } from '../../utils/userAgent'
@@ -109,10 +101,8 @@ const HoverText = styled.div`
 
 const WALLET_VIEWS = {
   OPTIONS: 'options',
-  OPTIONS_SECONDARY: 'options_secondary',
   ACCOUNT: 'account',
   PENDING: 'pending',
-  LEGAL: 'legal',
 }
 
 export default function WalletModal({
@@ -126,16 +116,9 @@ export default function WalletModal({
 }) {
   const isMobile = isMobileFn()
   const dispatch = useAppDispatch()
-  const { connector, hooks } = useWeb3React()
-  const isActiveMap: Partial<Record<Wallet, boolean>> = {
-    [Wallet.INJECTED]: hooks.useSelectedIsActive(injected),
-    [Wallet.COINBASE_WALLET]: hooks.useSelectedIsActive(coinbaseWallet),
-    [Wallet.WALLET_CONNECT]: hooks.useSelectedIsActive(walletConnect),
-    [Wallet.FORTMATIC]: hooks.useSelectedIsActive(fortmatic),
-  }
+  const { connector } = useWeb3React()
 
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
-  const previousWalletView = usePrevious(walletView)
 
   const [pendingConnector, setPendingConnector] = useState<Connector | undefined>()
   const pendingError = useAppSelector((state) =>
@@ -155,39 +138,44 @@ export default function WalletModal({
     }
   }, [walletModalOpen, setWalletView, connector])
 
-  const tryActivation = async (connector: Connector) => {
-    const wallet = getWalletForConnector(connector)
-
-    try {
-      // Fortmatic opens it's own modal on activation to log in. This modal has a tabIndex
-      // collision into the WalletModal, so we special case by closing the modal.
-      if (connector === fortmatic) {
-        toggleWalletModal()
-      }
-
-      setPendingConnector(connector)
-      setWalletView(WALLET_VIEWS.PENDING)
-
-      if (isActiveMap[wallet]) {
-        await connector.activate()
-        setWalletView(WALLET_VIEWS.ACCOUNT)
-        dispatch(updateWalletOverride({ wallet }))
-      } else {
-        await connector.activate()
-      }
-
-      dispatch(updateWalletError({ wallet, error: undefined }))
-    } catch (error) {
-      if (
-        connector === fortmatic &&
-        error.message === 'Fortmatic RPC Error: [-32603] Fortmatic: User denied account access.'
-      ) {
-        return
-      }
-
-      dispatch(updateWalletError({ wallet, error: error.message }))
+  useEffect(() => {
+    if (pendingConnector && walletView !== WALLET_VIEWS.PENDING) {
+      updateWalletError({ wallet: getWalletForConnector(pendingConnector), error: undefined })
+      setPendingConnector(undefined)
     }
-  }
+  }, [pendingConnector, walletView])
+
+  const tryActivation = useCallback(
+    async (connector: Connector) => {
+      const wallet = getWalletForConnector(connector)
+
+      try {
+        // Fortmatic opens it's own modal on activation to log in. This modal has a tabIndex
+        // collision into the WalletModal, so we special case by closing the modal.
+        if (connector === fortmatic) {
+          toggleWalletModal()
+        }
+
+        setPendingConnector(connector)
+        setWalletView(WALLET_VIEWS.PENDING)
+
+        await connector.activate()
+
+        dispatch(updateSelectedWallet({ wallet }))
+        dispatch(updateWalletError({ wallet, error: undefined }))
+      } catch (error) {
+        if (
+          connector === fortmatic &&
+          error.message === 'Fortmatic RPC Error: [-32603] Fortmatic: User denied account access.'
+        ) {
+          return
+        }
+
+        dispatch(updateWalletError({ wallet, error: error.message }))
+      }
+    },
+    [dispatch, toggleWalletModal]
+  )
 
   // get wallets user can switch too, depending on device/browser
   function getOptions() {
@@ -308,11 +296,19 @@ export default function WalletModal({
         <CloseIcon onClick={toggleWalletModal}>
           <CloseColor />
         </CloseIcon>
-        <HeaderRow color="blue">
-          <HoverText onClick={() => setWalletView(WALLET_VIEWS.OPTIONS)}>
-            <ArrowLeft />
-          </HoverText>
-        </HeaderRow>
+        {connector === network ? (
+          <HeaderRow color="blue">
+            <HoverText onClick={() => setWalletView(WALLET_VIEWS.OPTIONS)}>
+              <ArrowLeft />
+            </HoverText>
+          </HeaderRow>
+        ) : (
+          <HeaderRow>
+            <HoverText onClick={() => setWalletView(WALLET_VIEWS.ACCOUNT)}>
+              <>Connect a wallet</>
+            </HoverText>
+          </HeaderRow>
+        )}
         <ContentWrapper>
           <AutoColumn gap="16px">
             {walletView === WALLET_VIEWS.PENDING && pendingConnector && (
