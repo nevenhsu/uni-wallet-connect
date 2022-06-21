@@ -1,6 +1,6 @@
 import { TransactionReceipt } from '@ethersproject/abstract-provider'
+import { useWeb3React } from '@web3-react/core'
 import { SupportedChainId } from '../../../constants/chains'
-import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
 import useBlockNumber, { useFastForwardBlockNumber } from '../../../lib/hooks/useBlockNumber'
 import { useCallback, useEffect } from 'react'
 import { retry, RetryableError, RetryOptions } from '../../../utils/retry'
@@ -44,7 +44,7 @@ interface UpdaterProps {
 }
 
 export default function Updater({ pendingTransactions, onCheck, onReceipt }: UpdaterProps): null {
-  const { chainId, provider } = useActiveWeb3React()
+  const { chainId, provider } = useWeb3React()
 
   const lastBlockNumber = useBlockNumber()
   const fastForwardBlockNumber = useFastForwardBlockNumber()

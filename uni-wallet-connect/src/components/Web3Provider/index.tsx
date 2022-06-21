@@ -1,6 +1,13 @@
 import { Web3ReactProvider } from '@web3-react/core'
 import { Connector } from '@web3-react/types'
-import { getConnectorForWallet, gnosisSafe, MODAL_WALLETS, network, useConnectors, Wallet } from '../../connectors'
+import {
+  BACKFILLABLE_WALLETS,
+  getConnectorForWallet,
+  gnosisSafe,
+  injected,
+  network,
+  useConnectors,
+} from '../../connectors'
 import { ReactNode, useEffect } from 'react'
 import { useAppSelector } from '../../state/hooks'
 
@@ -24,14 +31,13 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     connect(gnosisSafe)
+    connect(injected)
     connect(network)
 
     if (selectedWallet) {
       connect(getConnectorForWallet(selectedWallet))
     } else if (!selectedWalletBackfilled) {
-      MODAL_WALLETS.filter((wallet) => wallet !== Wallet.FORTMATIC) // Don't try to connect to Fortmatic because it opens up a modal
-        .map(getConnectorForWallet)
-        .forEach(connect)
+      BACKFILLABLE_WALLETS.map(getConnectorForWallet).forEach(connect)
     }
     // The dependency list is empty so this is only run once on mount
   }, []) // eslint-disable-line react-hooks/exhaustive-deps

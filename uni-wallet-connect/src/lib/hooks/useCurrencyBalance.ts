@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import useActiveWeb3React from '../../hooks/useActiveWeb3React'
+import { useWeb3React } from '@web3-react/core'
 import JSBI from 'jsbi'
 import { useSingleContractMultipleData } from '../../lib/hooks/multicall'
 import { useMemo } from 'react'
@@ -14,7 +14,7 @@ import { isAddress } from '../../utils'
 export function useNativeCurrencyBalances(uncheckedAddresses?: (string | undefined)[]): {
   [address: string]: CurrencyAmount<Currency> | undefined
 } {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   const multicallContract = useInterfaceMulticall()
 
   const validAddressInputs: [string][] = useMemo(

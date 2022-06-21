@@ -1,5 +1,5 @@
 import { TransactionResponse } from '@ethersproject/providers'
-import useActiveWeb3React from '../../hooks/useActiveWeb3React'
+import { useWeb3React } from '@web3-react/core'
 import { useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '../hooks'
 
@@ -8,7 +8,7 @@ import { TransactionDetails, TransactionInfo, TransactionType } from './types'
 
 // helper that can take a ethers library transaction response and add it to the list of transactions
 export function useTransactionAdder(): (response: TransactionResponse, info: any) => void {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account } = useWeb3React()
   const dispatch = useAppDispatch()
 
   return useCallback(
@@ -28,7 +28,7 @@ export function useTransactionAdder(): (response: TransactionResponse, info: any
 
 // returns all the transactions for the current chain
 export function useAllTransactions(): { [txHash: string]: TransactionDetails } {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
 
   const state = useAppSelector((state) => state.transactions)
 

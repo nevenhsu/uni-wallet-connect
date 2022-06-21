@@ -1,6 +1,6 @@
 import { Connector } from '@web3-react/types'
+import { useWeb3React } from '@web3-react/core'
 import CopyHelper from '../../components/AccountDetails/Copy'
-import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { useCallback, useContext } from 'react'
 import { ExternalLink as LinkIcon, X as Close } from 'react-feather'
 import { useAppDispatch } from '../../state/hooks'
@@ -229,7 +229,7 @@ export default function AccountDetails({
   ENSName,
   openOptions,
 }: AccountDetailsProps) {
-  const { chainId, account, connector } = useActiveWeb3React()
+  const { chainId, account, connector } = useWeb3React()
   const theme = useContext(ThemeContext)
   const dispatch = useAppDispatch()
 

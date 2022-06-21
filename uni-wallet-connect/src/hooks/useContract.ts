@@ -1,3 +1,4 @@
+import { useWeb3React } from '@web3-react/core'
 import { Contract } from '@ethersproject/contracts'
 import UniswapInterfaceMulticallJson from '@uniswap/v3-periphery/artifacts/contracts/lens/UniswapInterfaceMulticall.sol/UniswapInterfaceMulticall.json'
 import ARGENT_WALLET_DETECTOR_ABI from '../abis/argent-wallet-detector.json'
@@ -12,7 +13,6 @@ import { ArgentWalletDetector, EnsPublicResolver, EnsRegistrar, Erc20, Erc721, E
 import WETH_ABI from '../abis/weth.json'
 import { ARGENT_WALLET_DETECTOR_ADDRESS, ENS_REGISTRAR_ADDRESSES, MULTICALL_ADDRESS } from '../constants/addresses'
 import { WRAPPED_NATIVE_CURRENCY } from '../constants/tokens'
-import useActiveWeb3React from '../hooks/useActiveWeb3React'
 import { useMemo } from 'react'
 import { UniswapInterfaceMulticall } from '../types/v3'
 
@@ -26,7 +26,7 @@ export function useContract<T extends Contract = Contract>(
   ABI: any,
   withSignerIfPossible = true
 ): T | null {
-  const { provider, account, chainId } = useActiveWeb3React()
+  const { provider, account, chainId } = useWeb3React()
 
   return useMemo(() => {
     if (!addressOrAddressMap || !ABI || !provider || !chainId) return null
@@ -48,7 +48,7 @@ export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: b
 }
 
 export function useWETHContract(withSignerIfPossible?: boolean) {
-  const { chainId } = useActiveWeb3React()
+  const { chainId } = useWeb3React()
   return useContract<Weth>(
     chainId ? WRAPPED_NATIVE_CURRENCY[chainId]?.address : undefined,
     WETH_ABI,

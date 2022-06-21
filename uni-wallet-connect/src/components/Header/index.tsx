@@ -1,7 +1,7 @@
 import clsx from 'clsx'
+import { useWeb3React } from '@web3-react/core'
 import { CHAIN_INFO } from '../../constants/chainInfo'
 import { SupportedChainId } from '../../constants/chains'
-import useActiveWeb3React from '../../hooks/useActiveWeb3React'
 import { Text } from 'rebass'
 import { useNativeCurrencyBalances } from '../../state/wallet/hooks'
 import styled from 'styled-components'
@@ -63,7 +63,7 @@ const BalanceText = styled(Text)`
 `
 
 export default function Header() {
-  const { account, chainId, connector } = useActiveWeb3React()
+  const { account, chainId, connector } = useWeb3React()
   const { state } = useAppContext()
 
   const chainAllowed = chainId && isChainAllowed(connector, chainId)
